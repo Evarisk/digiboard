@@ -139,7 +139,9 @@ class modDigiBoard extends DolibarrModules
         $this->hidden = false;
 
         // List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
-        $this->depends      = ['modSaturne', 'modDigiriskDolibarr', 'modMultiCompany'];
+        // The DigiRisk statistics need DigiRisk and MultiCompany, and check it themselves: a DigiBoard
+        // watching the tickets of other instances needs neither of them
+        $this->depends      = ['modSaturne'];
         $this->requiredby   = ['']; // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
         $this->conflictwith = []; // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -165,6 +167,7 @@ class modDigiBoard extends DolibarrModules
         $this->const = [
             // CONST CONFIGURATION
             $i++ => ['DIGIBOARD_DIGIRISIK_STATS_LOAD_ACCIDENT', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DIGIBOARD_REMOTE_CACHE_TTL', 'integer', 300, '', 0, 'current'],
 
             // CONST MODULE
             $i++ => ['DIGIBOARD_VERSION', 'chaine', $this->version, '', 0, 'current'],
@@ -236,6 +239,54 @@ class modDigiBoard extends DolibarrModules
             'position' => 10 + $r,
             'enabled'  => '$conf->digiboard->enabled && $conf->digiriskdolibarr->enabled',
             'perms'    => '$user->rights->digiboard->read && $user->rights->digiriskdolibarr->read ',
+            'target'   => '',
+            'user'     => 0,
+        ];
+
+        $this->menu[$r++] = [
+            'fk_menu'  => '',
+            'type'     => 'top',
+            'titre'    => $langs->transnoentities('DigiBoard'),
+            'prefix'   => '<i class="fas fa-chart-bar pictofixedwidth"></i>',
+            'mainmenu' => 'digiboard',
+            'leftmenu' => '',
+            'url'      => '/digiboard/view/remote_ticket_dashboard.php',
+            'langs'    => 'digiboard@digiboard',
+            'position' => 1000 + $r,
+            'enabled'  => '$conf->digiboard->enabled',
+            'perms'    => '$user->rights->digiboard->read',
+            'target'   => '',
+            'user'     => 0,
+        ];
+
+        $this->menu[$r++] = [
+            'fk_menu'  => 'fk_mainmenu=digiboard',
+            'type'     => 'left',
+            'titre'    => $langs->transnoentities('RemoteTicketDashboard'),
+            'prefix'   => '<i class="fas fa-chart-pie pictofixedwidth"></i>',
+            'mainmenu' => 'digiboard',
+            'leftmenu' => 'digiboardremoteticketdashboard',
+            'url'      => '/digiboard/view/remote_ticket_dashboard.php',
+            'langs'    => 'digiboard@digiboard',
+            'position' => 1000 + $r,
+            'enabled'  => '$conf->digiboard->enabled',
+            'perms'    => '$user->rights->digiboard->read',
+            'target'   => '',
+            'user'     => 0,
+        ];
+
+        $this->menu[$r++] = [
+            'fk_menu'  => 'fk_mainmenu=digiboard',
+            'type'     => 'left',
+            'titre'    => $langs->transnoentities('RemoteTicketList'),
+            'prefix'   => '<i class="fas fa-ticket-alt pictofixedwidth"></i>',
+            'mainmenu' => 'digiboard',
+            'leftmenu' => 'digiboardremoteticketlist',
+            'url'      => '/digiboard/view/remote_ticket_list.php',
+            'langs'    => 'digiboard@digiboard',
+            'position' => 1000 + $r,
+            'enabled'  => '$conf->digiboard->enabled',
+            'perms'    => '$user->rights->digiboard->read',
             'target'   => '',
             'user'     => 0,
         ];
