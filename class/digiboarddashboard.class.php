@@ -47,13 +47,54 @@ class DigiboardDashboard
     }
 
     /**
+     * Leave out the graphs and the lists the user hid
+     *
+     * A remote dashboard is computed on the instance owning the tickets, with the configuration of the user whose
+     * token was used, so hiding a graph here cannot spare its computation: it is dropped on arrival instead, and
+     * comes back in the list of the graphs that can be shown again.
+     *
+     * @param  array $dashboard Dashboard received from the remote instance
+     * @return array            Dashboard without the graphs and lists the user hid
+     */
+    protected function filterHiddenGraphs(array $dashboard): array
+    {
+        $config = json_decode(getDolUserString('DIGIBOARD_DASHBOARD_CONFIG'));
+        if (empty($config->graphs)) {
+            return $dashboard;
+        }
+
+        foreach (['graphs', 'lists'] as $family) {
+            if (empty($dashboard[$family]) || !is_array($dashboard[$family])) {
+                continue;
+            }
+            foreach ($dashboard[$family] as $key => $item) {
+                $name = $item['name'] ?? '';
+                if (empty($name) || empty($config->graphs->$name->hide)) {
+                    continue;
+                }
+                $dashboard['disabledGraphs'][$name] = $item['title'] ?? $name;
+                unset($dashboard[$family][$key]);
+            }
+            $dashboard[$family] = array_values($dashboard[$family]);
+        }
+
+        return $dashboard;
+    }
+
+    /**
      * Load dashboard info
      *
+     * @param  array|null $moreParams Parameters for load dashboard info
      * @return int|array
      * @throws Exception
      */
-    public function load_dashboard()
+    public function load_dashboard(?array $moreParams = [])
     {
+        // The ticket dashboard of a remote instance is a page of its own: it replaces the content instead of adding to it
+        if (!empty($moreParams['RemoteTicketDashboard'])) {
+            return ['ticket' => $this->filterHiddenGraphs($moreParams['RemoteTicketDashboard'])];
+        }
+
         $array['lists'] = [];
 
         if (isModEnabled('digiriskdolibarr') && isModEnabled('multicompany')) {
