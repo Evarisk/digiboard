@@ -41,3 +41,66 @@ DigiRiskStatsList               = Statistiques DigiRisk
 # Setup - Réglages
 DigiRiskStatsLoadAccident            = Chargement des statistiques d'accidents de DigiRisk
 DigiRiskStatsLoadAccidentDescription = Chargement des statistiques d'accidents de DigiRisk pour les entités partagées
+
+#
+# Remote instances - Instances distantes
+#
+
+RemoteInstances                   = Instances distantes
+RemoteInstancesDescription        = DigiBoard lit les tickets et le tableau de bord des autres Dolibarr par leur API REST. Chaque instance calcule ses propres indicateurs : le module ReedCRM doit y être installé, et le jeton doit appartenir à un utilisateur ayant les droits de lecture sur ReedCRM et sur les tickets.
+RemoteInstance                    = Instance distante
+RemoteInstanceUrl                 = URL de l'instance
+RemoteInstanceUrlDescription      = Racine de l'instance Dolibarr, sans le / final, par exemple https://crm.exemple.com/htdocs. L'API est appelée sur cette racine suivie de /api/index.php.
+RemoteInstanceToken               = Jeton d'API (DOLAPIKEY)
+RemoteInstanceTokenDescription    = Jeton d'API de l'utilisateur au nom duquel les données sont lues. Il est stocké chiffré et n'est jamais réaffiché.
+RemoteInstanceTokenKept           = Jeton enregistré, laisser vide pour le conserver
+RemoteInstanceLocalUrl            = Autoriser une adresse locale
+RemoteInstanceLocalUrlDescription = À cocher uniquement si l'instance est sur le même réseau (localhost, 192.168.x.x) : l'appel est refusé sinon.
+AddRemoteInstance                 = Ajouter une instance distante
+EditRemoteInstance                = Modifier l'instance distante
+RemoteInstanceSaved               = Instance distante enregistrée
+RemoteInstanceDeleted             = Instance distante supprimée
+RemoteInstanceDeleteFailed        = La suppression de l'instance distante a échoué
+RemoteInstanceNotFound            = Instance distante introuvable
+ConfirmDeleteRemoteInstance       = Supprimer l'instance distante %s ?
+RemoteInstanceTestOk              = Connexion à %s réussie en %s ms
+RemoteInstanceTestKo              = Connexion à %s impossible
+RemoteInstanceLabelAndUrlRequired = Le libellé et l'URL sont obligatoires
+RemoteInstanceUrlMustBeAbsolute   = L'URL doit commencer par http:// ou https://
+RemoteInstanceUrlMissing          = Aucune URL n'est configurée pour cette instance
+RemoteInstanceHttpError           = L'instance a répondu avec le code HTTP %s
+RemoteInstanceInvalidAnswer       = La réponse de l'instance n'est pas exploitable
+RemoteInstanceCallFailed          = Lecture de l'instance %s impossible
+NoRemoteInstanceConfigured        = Aucune instance distante n'est configurée
+ConfigureRemoteInstances          = Configurer les instances
+RemoteCache                       = Cache des réponses
+RemoteCacheTtl                    = Durée de validité du cache
+RemoteCacheTtlDescription         = Une réponse est réutilisée pendant cette durée avant que l'instance ne soit rappelée. 0 désactive le cache.
+ClearRemoteCache                  = Vider le cache
+RemoteCacheCleared                = Cache des réponses distantes vidé
+RemoteCacheClearedNb              = Cache des réponses distantes vidé (%s fichiers)
+RemoteAnswer                      = Réponse
+RemoteAnswerFromCache             = Depuis le cache
+RemoteDataReadOn                  = Données lues sur %s le %s
+RefreshRemoteData                 = Rafraîchir les données
+
+#
+# Remote tickets - Tickets distants
+#
+
+RemoteTicketDashboard    = Tableau de bord tickets distants
+RemoteTicketList         = Tickets distants
+OpenTicketsOnly          = Tickets ouverts uniquement
+TicketsDormant           = Dormants
+NbOfOpenedTicket         = Tickets ouverts
+TicketsCreatedOverPeriod = Créés sur la période
+TicketsClosedOverPeriod  = Clôturés sur la période
+TicketsUnassigned        = Non assignés
+MeanBacklogAge           = Ancienneté moyenne du stock
+MeanResolutionTime       = Résolution moyenne
+TotalTimeSpentOverPeriod = Temps total
+LastMessage              = Dernier message
+NbOfExchanges            = Messages
+TicketPeriodLastMonth    = 01 dernier mois
+TicketPeriodLastMonths   = %s derniers mois
+TicketPeriodAll          = Tout l'historique
