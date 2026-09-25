@@ -20,6 +20,13 @@ parameters:
             - documents/ (?)
             - langs/ (?)
             - dev/ (?)
+            # « test/ » au singulier est le squelette du gabarit de module Dolibarr : un
+            # harnais Selenium qui etend PHPUnit_Extensions_Selenium2TestCase, extension
+            # retiree de PHPUnit depuis des annees. Ces fichiers ne peuvent plus s'executer
+            # et gagneraient a etre supprimes ; en attendant, les analyser ne rend qu'une
+            # classe introuvable, non ignorable, qui empeche toute baseline.
+            # « tests/ » au pluriel, lui, porte de vrais tests et reste analyse.
+            - test/ (?)
         analyse:
             # Les fragments de template sont inclus au milieu de la portee de leur
             # appelant : leurs variables sont indefinies par construction quand on les
@@ -43,7 +50,9 @@ parameters:
     # A garder en phase avec le sparse-checkout de .github/workflows/quality.yml.
     scanDirectories:
         - ../saturne/
+        - ../../ai/class/
         - ../../api/class/
+        - ../../bookmarks/class/
         - ../../categories/class/
         - ../../comm/action/class/
         - ../../comm/propal/class/
@@ -51,16 +60,19 @@ parameters:
         - ../../compta/facture/class/
         - ../../contact/class/
         - ../../contrat/class/
+        - ../../core/boxes/
         - ../../core/class/
         - ../../core/db/
         - ../../core/lib/
         - ../../core/modules/
         - ../../core/tpl/
         - ../../core/triggers/
+        - ../../cron/class/
         - ../../ecm/class/
         - ../../expedition/class/
         - ../../fichinter/class/
         - ../../fourn/class/
+        - ../../holiday/class/
         - ../../includes/odtphp/
         - ../../includes/parsedown/
         - ../../includes/restler/framework/
