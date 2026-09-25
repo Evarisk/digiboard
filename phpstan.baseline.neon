@@ -299,3 +299,8 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: core/modules/modDigiBoard.class.php
+		-
+			message: '#^Property DolibarrModules\:\:\$menu \(1\|array\<array\{commentgroup\?\: string, mainmenu\: string, leftmenu\: string, langs\: string, enabled\: int\|string, target\: string, titre\: string, user\: int, \.\.\.\}\>\) does not accept non\-empty\-array\<array\{commentgroup\?\: string, mainmenu\: string, leftmenu\: string, langs\: string, enabled\: int\|string, target\: string, titre\: string, user\: int, \.\.\.\}\|array\{fk_menu\: ''fk_mainmenu…'', type\: ''left'', titre\: mixed, prefix\: ''\<i class\="fas fa…'', mainmenu\: ''digiriskdolibarr'', leftmenu\: ''digiboardconfig'', url\: ''/digiboard…'', langs\: ''digiboard@digiboard'', \.\.\.\}\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: core/modules/modDigiBoard.class.php
