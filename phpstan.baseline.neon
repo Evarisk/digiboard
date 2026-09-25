@@ -1,0 +1,301 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#2 \$needle of function strpos expects string, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: class/actions_digiboard.class.php
+
+		-
+			message: '#^Access to constant STATUS_DRAFT on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Access to property \$ismultientitymanaged on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 2
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Access to property \$ismultientitymanaged on an unknown class Evaluator\.$#'
+			identifier: class.notFound
+			count: 2
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Access to property \$ismultientitymanaged on an unknown class RiskAssessmentDocument\.$#'
+			identifier: class.notFound
+			count: 2
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getGenerationDateInfos\(\) on an unknown class RiskAssessmentDocument\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getNbEmployees\(\) on an unknown class Evaluator\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getNbEmployeesInvolved\(\) on an unknown class Evaluator\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getRiskByDangerCategoriesAndRiskAssessments\(\) on an unknown class Risk\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to static method getDangerCategories\(\) on an unknown class Risk\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Instantiated class Accident not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Instantiated class Evaluator not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Instantiated class Risk not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Instantiated class RiskAssessmentDocument not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Variable \$accident might not be defined\.$#'
+			identifier: variable.undefined
+			count: 10
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$boxes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$config_page_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$conflictwith\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$const\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$const_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$cronjobs\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$db\.$#'
+			identifier: property.notFound
+			count: 4
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$depends\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$descriptionlong\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$dictionaries\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$dirs\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$editor_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$error\.$#'
+			identifier: property.notFound
+			count: 2
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$errors\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$family\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$familyinfo\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$hidden\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$langfiles\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$max_dolibarr_version\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$menu\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$module_parts\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$module_position\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$need_dolibarr_version\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$phpmin\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$picto\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$requiredby\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$rights\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$rights_class\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$tabs\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$warnings_activation\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Access to an undefined property modDigiBoard\:\:\$warnings_activation_ext\.$#'
+			identifier: property.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Call to an undefined method modDigiBoard\:\:_init\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
+
+		-
+			message: '#^Call to an undefined method modDigiBoard\:\:_remove\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: core/modules/modDigiBoard.class.php
