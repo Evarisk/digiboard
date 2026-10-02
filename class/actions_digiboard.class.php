@@ -109,8 +109,12 @@ class ActionsDigiboard
      */
     public function checkSecureAccess(array $parameters): int
     {
+        global $conf;
+
         if (strpos($parameters['context'], 'main') !== false) {
-            if ($parameters['modulepart'] == 'digiriskdolibarr' && strpos($_SERVER['HTTP_REFERER'], dol_buildpath('custom/digiboard/index.php', 1) != false)) {
+            // Only documents of another entity need their path rewritten: those of the current one are already right
+            $referer = $_SERVER['HTTP_REFERER'] ?? '';
+            if ($parameters['modulepart'] == 'digiriskdolibarr' && (int) $parameters['entity'] != (int) $conf->entity && strpos($referer, dol_buildpath('custom/digiboard/index.php', 1)) !== false) {
                 $filePath                       = preg_split('/' . $parameters['modulepart'] . '/', $parameters['original_file']);
                 $this->results['original_file'] = $filePath[0] . $parameters['entity'] . '/' . $parameters['modulepart'] . $filePath[1];
                 return 1;
