@@ -1,0 +1,97 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#2 \$needle of function strpos expects string, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: class/actions_digiboard.class.php
+
+		-
+			message: '#^Access to constant STATUS_DRAFT on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Access to property \$ismultientitymanaged on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 2
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Access to property \$ismultientitymanaged on an unknown class Evaluator\.$#'
+			identifier: class.notFound
+			count: 2
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Access to property \$ismultientitymanaged on an unknown class RiskAssessmentDocument\.$#'
+			identifier: class.notFound
+			count: 2
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getGenerationDateInfos\(\) on an unknown class RiskAssessmentDocument\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getNbEmployees\(\) on an unknown class Evaluator\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getNbEmployeesInvolved\(\) on an unknown class Evaluator\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getRiskByDangerCategoriesAndRiskAssessments\(\) on an unknown class Risk\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to static method getDangerCategories\(\) on an unknown class Risk\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Instantiated class Accident not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Instantiated class Evaluator not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Instantiated class Risk not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Instantiated class RiskAssessmentDocument not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Variable \$accident might not be defined\.$#'
+			identifier: variable.undefined
+			count: 10
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Property DolibarrModules\:\:\$menu \(1\|array\<array\{commentgroup\?\: string, mainmenu\: string, leftmenu\: string, langs\: string, enabled\: int\|string, target\: string, titre\: string, user\: int, \.\.\.\}\>\) does not accept non\-empty\-array\<array\{commentgroup\?\: string, mainmenu\: string, leftmenu\: string, langs\: string, enabled\: int\|string, target\: string, titre\: string, user\: int, \.\.\.\}\|array\{fk_menu\: ''fk_mainmenu…'', type\: ''left'', titre\: mixed, prefix\: ''\<i class\="fas fa…'', mainmenu\: ''digiriskdolibarr'', leftmenu\: ''digiboardconfig'', url\: ''/digiboard…'', langs\: ''digiboard@digiboard'', \.\.\.\}\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: core/modules/modDigiBoard.class.php
