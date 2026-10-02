@@ -112,11 +112,15 @@ class ActionsDigiboard
         global $conf;
 
         if (strpos($parameters['context'], 'main') !== false) {
+            // Since Dolibarr 24, $parameters['entity'] is the session entity for a logged user: main.inc.php
+            // overwrites the global $entity document.php read from the URL. Read the requested one ourselves
+            $entity = GETPOSTISSET('entity') ? GETPOSTINT('entity') : (int) $parameters['entity'];
+
             // Only documents of another entity need their path rewritten: those of the current one are already right
             $referer = $_SERVER['HTTP_REFERER'] ?? '';
-            if ($parameters['modulepart'] == 'digiriskdolibarr' && (int) $parameters['entity'] != (int) $conf->entity && strpos($referer, dol_buildpath('custom/digiboard/index.php', 1)) !== false) {
+            if ($parameters['modulepart'] == 'digiriskdolibarr' && $entity > 0 && $entity != (int) $conf->entity && strpos($referer, dol_buildpath('custom/digiboard/index.php', 1)) !== false) {
                 $filePath                       = preg_split('/' . $parameters['modulepart'] . '/', $parameters['original_file']);
-                $this->results['original_file'] = $filePath[0] . $parameters['entity'] . '/' . $parameters['modulepart'] . $filePath[1];
+                $this->results['original_file'] = $filePath[0] . $entity . '/' . $parameters['modulepart'] . $filePath[1];
                 return 1;
             }
         }
