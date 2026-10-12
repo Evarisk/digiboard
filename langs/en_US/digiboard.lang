@@ -1,0 +1,147 @@
+# Copyright (C) 2024 EVARISK <technique@evarisk.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Generic
+#
+
+# Data
+ModuleDigiBoardName      = DigiBoard
+ModuleDigiBoardDesc      = Dashboard for DigiRisk, DigiQuali applications and more ...
+DigiBoardDescription     = Dashboard for DigiRisk, DigiQuali applications and more ...
+DigiBoardDescriptionLong = Dashboard for DigiRisk, DigiQuali applications and more ...
+EnableDigiBoard          = Please enable the DigiBoard module to access this page
+TotalRisk                = Total risk
+
+# MultiCompany
+ShareDigiriskstats              = Enable DigiRisk statistics sharing
+DigiriskStatsSharedTooltip      = Share your statistics with other DigiRisk entities
+DIGIRISKSTATSSharing            = DigiRisk statistics sharing
+DIGIRISKSTATSSharingDescription = Selection of entities that will share their DigiRisk statistics with this entity.
+DigiRiskStatsList               = DigiRisk statistics
+ErrorGetDigiRiskStatsList       = Unable to retrieve DigiRisk statistics list
+
+#
+# Config page
+#
+
+# Setup
+DigiRiskStatsLoadAccident            = Loading DigiRisk accident statistics
+DigiRiskStatsLoadAccidentDescription = Loading DigiRisk accident statistics for shared entities
+
+#
+# Remote instances
+#
+
+RemoteInstances                   = Remote instances
+RemoteInstancesDescription        = DigiBoard reads tickets and dashboards from other Dolibarr instances via their REST API. Each instance calculates its own indicators: the ReedCRM module must be installed on it, and the token must belong to a user with read permissions on ReedCRM and tickets.
+RemoteInstance                    = Remote instance
+RemoteInstanceUrl                 = Instance URL
+RemoteInstanceUrlDescription      = Root URL of the Dolibarr instance, without trailing slash, for example https://crm.example.com/htdocs. The API is called on this root followed by /api/index.php.
+RemoteInstanceToken               = API token (DOLAPIKEY)
+RemoteInstanceTokenDescription    = API token of the user on whose behalf data is read. It is stored encrypted and is never redisplayed.
+RemoteInstanceTokenKept           = Saved token, leave empty to keep it
+RemoteInstanceLocalUrl            = Allow local address
+RemoteInstanceLocalUrlDescription = Check only if the instance is on the same network (localhost, 192.168.x.x): otherwise the call will be rejected.
+AddRemoteInstance                 = Add a remote instance
+EditRemoteInstance                = Edit remote instance
+RemoteInstanceSaved               = Remote instance saved
+RemoteInstanceDeleted             = Remote instance deleted
+RemoteInstanceDeleteFailed        = Failed to delete remote instance
+RemoteInstanceNotFound            = Remote instance not found
+ConfirmDeleteRemoteInstance       = Delete remote instance %s?
+RemoteInstanceTestOk              = Connection to %s succeeded in %s ms
+RemoteInstanceTestKo              = Connection to %s impossible
+RemoteInstanceLabelAndUrlRequired = Label and URL are required
+RemoteInstanceUrlMustBeAbsolute   = URL must start with http:// or https://
+RemoteInstanceUrlMissing          = No URL configured for this instance
+RemoteInstanceHttpError           = The instance responded with HTTP code %s
+RemoteInstanceInvalidAnswer       = The response from the instance cannot be used
+RemoteInstanceCallFailed          = Failed to read instance %s
+NoRemoteInstanceConfigured        = No remote instance configured
+ConfigureRemoteInstances          = Configure instances
+RemoteCache                       = Response cache
+RemoteCacheTtl                    = Cache validity duration
+RemoteCacheTtlDescription         = A response is reused for this duration before the instance is called again. 0 disables the cache.
+ClearRemoteCache                  = Clear cache
+RemoteCacheCleared                = Remote response cache cleared
+RemoteCacheClearedNb              = Remote response cache cleared (%s files)
+RemoteAnswer                      = Response
+RemoteAnswerFromCache             = From cache
+RemoteDataReadOn                  = Data read on %s at %s
+RefreshRemoteData                 = Refresh data
+
+#
+# Remote tickets
+#
+
+RemoteTicketDashboard    = Remote tickets dashboard
+RemoteTicketList         = Remote tickets
+OpenTicketsOnly          = Open tickets only
+TicketsDormant           = Dormant
+NbOfOpenedTicket         = Opened tickets
+TicketsCreatedOverPeriod = Created over the period
+TicketsClosedOverPeriod  = Closed over the period
+TicketsUnassigned        = Unassigned
+MeanBacklogAge           = Average backlog age
+MeanResolutionTime       = Average resolution time
+TotalTimeSpentOverPeriod = Total time spent
+LastMessage              = Last message
+NbOfExchanges            = Messages
+TicketPeriodLastMonth    = Last month
+TicketPeriodLastMonths   = Last %s months
+TicketPeriodAll          = All history
+
+#
+# Risk Listing
+#
+SimplifiedRiskList               = Simplified risk list
+SimplifiedRiskListDesc           = Interactive and simplified risk listing by establishment
+Establishment                    = Establishment
+FilterByEstablishment            = Establishment
+AllEstablishments                = All establishments
+GroupmentAndUnit                 = Groupment & Unit (GP/UT)
+FilterByGroupmentAndUnit         = Groupment & Unit
+AllGroupmentsAndUnits            = All groupments & units
+FilterByCategory                 = Risk category
+AllCategories                    = All categories
+DangerCategory                   = Category
+Cat                              = Cat.
+Groupment                        = Groupment
+WorkUnit                         = Work unit
+RiskLevel                        = Risk level
+AllRisks                         = All risks
+RiskLow                          = Low risk
+RiskToPlan                       = Risk to plan
+RiskToTreat                      = Risk to treat
+RiskUnacceptable                 = Unacceptable risk
+RiskNotAssessed                  = Not assessed risk
+RisksCount                       = %s risks
+SearchRiskPlaceholder            = Search a risk, unit, task...
+ActionsAndTasks                  = Action plan
+NoTasks                          = No action
+TaskCompleted                    = Completed
+TaskInProgress                   = In progress
+TasksCompleted                   = %s / %s actions completed
+LastAssessment                   = Last assessment
+EvaluatedBy                      = Evaluated by %s
+ViewRiskCard                     = View card
+LocationEstablishment            = Establishment & Unit
+RiskTypeProfessional            = Professional risks
+RiskTypeEnvironmental           = Environmental risks
+ModuleDigiriskDolibarrRequired   = The DigiRisk module must be enabled to view the risk listing.
+Overdue                          = Overdue
+AssessmentsCount                 = %s assessment(s)
+CotationScore                    = Cotation: %s

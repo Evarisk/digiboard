@@ -31,6 +31,7 @@ DigiriskStatsSharedTooltip      = Partagez vos statistiques avec les autres enti
 DIGIRISKSTATSSharing            = Partage des statistiques DigiRisk
 DIGIRISKSTATSSharingDescription = Sélection des entités qui partageront leurs statistiques DigiRisk avec cette entité.
 DigiRiskStatsList               = Statistiques DigiRisk
+ErrorGetDigiRiskStatsList       = Impossible de récupérer la liste des statistiques DigiRisk
 
 
 
@@ -104,3 +105,45 @@ NbOfExchanges            = Messages
 TicketPeriodLastMonth    = 01 dernier mois
 TicketPeriodLastMonths   = %s derniers mois
 TicketPeriodAll          = Tout l'historique
+
+#
+# Risk Listing - Listing des risques
+#
+SimplifiedRiskList               = Listing simplifié des risques
+SimplifiedRiskListDesc           = Listing interactif et simplifié des risques par établissement
+Establishment                    = Établissement
+FilterByEstablishment            = Établissement
+AllEstablishments                = Tous les établissements
+GroupmentAndUnit                 = Groupement & Unité (GP/UT)
+FilterByGroupmentAndUnit         = Groupement & Unité
+AllGroupmentsAndUnits            = Tous les groupements & unités
+FilterByCategory                 = Catégorie de risque
+AllCategories                    = Toutes les catégories
+DangerCategory                   = Catégorie
+Cat                              = Cat.
+Groupment                        = Groupement
+WorkUnit                         = Unité de travail
+RiskLevel                        = Niveau de risque
+AllRisks                         = Tous les risques
+RiskLow                          = Risque faible
+RiskToPlan                       = Risque à planifier
+RiskToTreat                      = Risque à traiter
+RiskUnacceptable                 = Risque inacceptable
+RiskNotAssessed                  = Risque non évalué
+RisksCount                       = %s risques
+SearchRiskPlaceholder            = Rechercher un risque, une unité, une tâche...
+ActionsAndTasks                  = Plan d'actions
+NoTasks                          = Aucune action
+TaskCompleted                    = Terminée
+TaskInProgress                   = En cours
+TasksCompleted                   = %s / %s actions terminées
+LastAssessment                   = Dernière évaluation
+EvaluatedBy                      = Évalué par %s
+ViewRiskCard                     = Voir la fiche
+LocationEstablishment            = Établissement & Unité
+RiskTypeProfessional            = Risques professionnels
+RiskTypeEnvironmental           = Risques environnementaux
+ModuleDigiriskDolibarrRequired   = Le module DigiRisk doit être activé pour afficher le listing des risques.
+Overdue                          = En retard
+AssessmentsCount                 = %s évaluation(s)
+CotationScore                    = Cotation : %s

@@ -1,42 +1,59 @@
-# [DigiBoard] [23.1.1] - Téléchargement des documents Digirisk réparé
+# [DigiBoard] [23.2.0] - Liste simplifiée des risques
 
-Description : Version corrective. Elle répare le téléchargement des documents Digirisk depuis le tableau de bord, qui échouait selon l'adresse de la page d'origine, aligne les bornes de compatibilité Dolibarr du module sur la ligne réellement livrée et place le code sous analyse statique à chaque modification.
+Description : Tous vos risques, tous vos établissements, un seul écran. DigiBoard 23.2.0 ajoute une liste des risques pensée pour le suivi au quotidien : on voit d'un coup d'œil où sont les priorités, qui s'en occupe et où en est le plan d'action.
 
 **Cette version demande Saturne 23.2.1 ou supérieur.**
 
-## Améliorations & corrections
+## 🎬 La nouveauté en vidéo
 
-### Documents Digirisk
+[![La liste simplifiée des risques en vidéo (48 s)](https://raw.githubusercontent.com/nicolas-eoxia/digiboard/assets/release-23.2.0/video_poster_23.2.0.jpeg)](https://github.com/Evarisk/digiboard/releases/download/23.2.0/digiboard-23.2.0.mp4)
 
-* **Le téléchargement d'un document Digirisk échouait de façon imprévisible.** Le contrôle d'accès du module réécrivait le chemin du fichier dès que l'adresse de la page d'origine contenait le chiffre « 1 » — une parenthèse mal placée transformait le motif recherché en une valeur toujours vraie — et il le faisait même sans adresse d'origine. Le chemin n'est plus réécrit que pour les documents d'une **autre entité**, les seuls qui en ont besoin.
+*Cliquez sur l'image pour lancer la vidéo (48 s).*
 
-### Compatibilité
+## 🚀 Pack nouveautés
 
-* Le module déclare **Dolibarr 23 au minimum et 24 au maximum**. Il annonçait la 19 comme plancher, une ligne qu'il ne sait plus faire fonctionner : **sur un Dolibarr antérieur à la 23, il refusera désormais de s'activer** plutôt que de s'installer pour tomber en erreur ensuite.
+### Liste simplifiée des risques
 
-### Paquet livré
+![Listing simplifié des risques](https://raw.githubusercontent.com/nicolas-eoxia/digiboard/assets/release-23.2.0/risk_list_23.2.0.png)
 
-* **Le paquet embarquait l'outillage interne du dépôt** — intégration continue, analyse statique, dépendances de développement. DigiBoard était le seul module du parc sans règles d'exclusion de paquet, et ne pouvait pas en avoir : le fichier qui les porte était lui-même ignoré depuis la création du dépôt. Le paquet passe de 57 à 38 fichiers, tous utiles au module.
+**Le document unique se pilote enfin depuis une seule page.** Plus besoin d'ouvrir chaque groupement ou unité de travail pour savoir où vous en êtes : la nouvelle page **Listing simplifié des risques** rassemble tous les risques avec leur cotation, leur emplacement et leur plan d'action.
 
-### Documentation du module
+* **Les priorités sautent aux yeux.** En haut de page, un compteur par niveau — faible, à planifier, à traiter, inacceptable, non évalué. Un clic sur un compteur n'affiche plus que les risques de ce niveau : la préparation d'un comité ou d'une revue de direction commence là.
+* **Le plan d'action sous les yeux, sans changer de page.** Chaque risque affiche ses actions correctives, leur responsable, leur échéance et une barre d'avancement. On repère tout de suite un risque à planifier sans action, ou un plan resté à mi-chemin.
+* **Professionnels et environnementaux, chacun leur onglet.** Les deux registres se consultent séparément, avec les mêmes outils.
+* **Un clic pour agir.** La fiche du risque ou de la tâche s'ouvre directement depuis la liste.
 
-* Le changelog reprend le nom attendu par Dolibarr, `ChangeLog.md`. Le cœur le lit pour l'injecter dans la documentation générée du module ; sous l'ancien nom, il ne le trouvait pas sur un serveur Linux.
+### Filtrer en un instant
 
-### Intégration continue
+![Filtre par catégorie de danger](https://raw.githubusercontent.com/nicolas-eoxia/digiboard/assets/release-23.2.0/risk_list_categories.png)
 
-* Les pull requests passent désormais **PHPStan**, un **lint PHP** et un contrôle de **parité des fichiers de langue** français / anglais : une clé ajoutée d'un côté et oubliée de l'autre arrête la chaîne.
+* Filtrez par **établissement**, par **groupement ou unité de travail** et par **catégorie de danger** — chaque catégorie avec son pictogramme, pour la retrouver sans lire.
+* Une recherche libre retrouve un risque, une unité ou une tâche en quelques lettres.
+* Exemple : « tous les risques de chute de hauteur encore à planifier sur le site de Lyon » s'affiche en quelques clics : les filtres se combinent avec les compteurs.
 
-## Comparaison des versions [23.1.0](https://github.com/Evarisk/digiboard/compare/23.1.0...23.1.1) et 23.1.1
+### Pensée pour les groupes multi-sites
 
-* #73 [Mod] fix: poser le gabarit .gitattributes, absent du dépôt [`2dca11e`](https://github.com/Evarisk/digiboard/commit/2dca11e)
-* #69 [Hook] fix: checkSecureAccess casse les téléchargements Digirisk (referer absent ou contenant « 1 ») [`ee4353f`](https://github.com/Evarisk/digiboard/commit/ee4353f)
-* #66 [Mod] fix: renommer le changelog en ChangeLog.md [`0f47ad0`](https://github.com/Evarisk/digiboard/commit/0f47ad0)
-* #63 [CI] rework: élaguer les entrées mortes de la baseline [`fc06d17`](https://github.com/Evarisk/digiboard/commit/fc06d17)
-* #60 [CI] rework: scanner le socle par dossier plutôt que l'exclure par morceaux [`cd3a9aa`](https://github.com/Evarisk/digiboard/commit/cd3a9aa)
-* #56 [CI] fix: exclure les bouchons phan de Saturne de l'analyse [`5944357`](https://github.com/Evarisk/digiboard/commit/5944357)
-* #52 [CI] fix: reposer l'exclusion des stubs de test de Saturne [`98d5886`](https://github.com/Evarisk/digiboard/commit/98d5886)
-* #48 [CI] rework: aligner phpstan.neon sur le gabarit commun [`f70598e`](https://github.com/Evarisk/digiboard/commit/f70598e)
-* #46 [CI] fix: PHPStan ne scanne plus les stubs de test de Saturne [`18a32ce`](https://github.com/Evarisk/digiboard/commit/18a32ce)
-* #44 [CI] rework: aligner phpstan.neon et quality.yml sur le gabarit commun [`9784dbb`](https://github.com/Evarisk/digiboard/commit/9784dbb)
-* #42 [CI] feat: PHPStan, lint PHP et parité des langues [`3a8024b`](https://github.com/Evarisk/digiboard/commit/3a8024b)
-* #40 [Module] rework: bornes de version Dolibarr 23 minimum, 24 maximum [`6d8ce03`](https://github.com/Evarisk/digiboard/commit/6d8ce03)
+* Avec Multicompany, la liste réunit les risques de **toutes les entités partagées** et indique l'établissement de chacun. Un responsable QSE suit l'ensemble de ses sites depuis un seul écran.
+* Un clic sur un risque ou une tâche d'une autre entité **bascule automatiquement dans cette entité** et ouvre la fiche.
+
+La page est accessible depuis le menu DigiBoard et depuis le menu de Digirisk, qui doit être activé. **Après la mise à jour, désactivez puis réactivez DigiBoard** pour faire apparaître les nouvelles entrées de menu.
+
+## 🛠️ Pack améliorations
+
+* **Documents Digirisk multi-entités sous Dolibarr 24** : un document d'une autre entité ouvert depuis le tableau de bord renvoyait « Le fichier n'existe pas ». Il s'ouvre de nouveau.
+* **DigiBoard parle anglais** : le module dispose désormais d'une traduction anglaise complète.
+* **Partage Multicompany** : le bloc de partage des statistiques DigiRisk de la fiche entité affichait des codes techniques (`DIGIRISKSTATSSharing`) ; il est traduit.
+* **La bonne langue pour chacun** : les textes du module suivent la langue choisie par l'utilisateur, et non plus celle de son navigateur.
+
+## 👉 Essayez-la maintenant
+
+**Allez tester la liste simplifiée des risques sur la démo : [http://demo.digirisk.com/](http://demo.digirisk.com/)**
+
+## Comparaison des versions [23.1.1](https://github.com/Evarisk/digiboard/compare/23.1.1...23.2.0) et 23.2.0
+
+* #85 [Lang] fix: charger la langue du module après celle de l'utilisateur [`e2d75de`](https://github.com/Evarisk/digiboard/commit/e2d75de)
+* #83 [Risk] fix: ouvrir un risque ou une tâche d'une autre entité depuis la liste simplifiée [`d4479f5`](https://github.com/Evarisk/digiboard/commit/d4479f5)
+* #81 [Risk] fix: update cotation pill colors (grey for low, white text on unacceptable) and hide unassessed when empty [`cc2f277`](https://github.com/Evarisk/digiboard/commit/cc2f277)
+* #79 [Risk] add: simplified interactive risk listing page in Notion style [`66b4f8a`](https://github.com/Evarisk/digiboard/commit/66b4f8a)
+* #77 [Lang] fix: add missing English translations and load lang file for MultiCompany sharing [`e635426`](https://github.com/Evarisk/digiboard/commit/e635426)
+* #71 [Hook] fix: read requested entity from the request in checkSecureAccess [`888b1c2`](https://github.com/Evarisk/digiboard/commit/888b1c2)

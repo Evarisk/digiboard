@@ -78,7 +78,7 @@ class modDigiBoard extends DolibarrModules
         $this->editor_url  = 'https://evarisk.com';
 
         // Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-        $this->version = '23.1.1';
+        $this->version = '23.2.0';
 
         // Url to the file with your last numberversion of this module
         //$this->url_last_version = 'http://www.example.com/versionmodule.txt';
@@ -245,6 +245,21 @@ class modDigiBoard extends DolibarrModules
         ];
 
         $this->menu[$r++] = [
+            'fk_menu'  => 'fk_mainmenu=digiriskdolibarr,fk_leftmenu=digiboardconfig',
+            'type'     => 'left',
+            'titre'    => '<i class="fas fa-list pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('SimplifiedRiskList'),
+            'mainmenu' => 'digiriskdolibarr',
+            'leftmenu' => 'digiboardsimplifiedrisklist',
+            'url'      => '/digiboard/view/risk_list.php',
+            'langs'    => 'digiboard@digiboard',
+            'position' => 10 + $r,
+            'enabled'  => '$conf->digiboard->enabled && $conf->digiriskdolibarr->enabled',
+            'perms'    => '$user->rights->digiboard->read',
+            'target'   => '',
+            'user'     => 0,
+        ];
+
+        $this->menu[$r++] = [
             'fk_menu'  => '',
             'type'     => 'top',
             'titre'    => $langs->transnoentities('DigiBoard'),
@@ -287,6 +302,21 @@ class modDigiBoard extends DolibarrModules
             'langs'    => 'digiboard@digiboard',
             'position' => 1000 + $r,
             'enabled'  => '$conf->digiboard->enabled',
+            'perms'    => '$user->rights->digiboard->read',
+            'target'   => '',
+            'user'     => 0,
+        ];
+
+        $this->menu[$r++] = [
+            'fk_menu'  => 'fk_mainmenu=digiboard',
+            'type'     => 'left',
+            'titre'    => '<i class="fas fa-list pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('SimplifiedRiskList'),
+            'mainmenu' => 'digiboard',
+            'leftmenu' => 'digiboardsimplifiedrisklist_top',
+            'url'      => '/digiboard/view/risk_list.php',
+            'langs'    => 'digiboard@digiboard',
+            'position' => 1000 + $r,
+            'enabled'  => '$conf->digiboard->enabled && $conf->digiriskdolibarr->enabled',
             'perms'    => '$user->rights->digiboard->read',
             'target'   => '',
             'user'     => 0,
