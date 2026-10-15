@@ -115,16 +115,23 @@ class ActionsDigiboard
      */
     public function checkSecureAccess(array $parameters): int
     {
-        global $conf;
+        global $conf, $mc, $user;
 
         if (strpos($parameters['context'], 'main') !== false) {
-            // Since Dolibarr 24, $parameters['entity'] is the session entity for a logged user: main.inc.php
-            // overwrites the global $entity document.php read from the URL. Read the requested one ourselves
+            // Since Dolibarr 24, $parameters['entity'] is the session entity for a logged user: the entity of the
+            // URL is ignored on purpose, since anyone can forge it. Read the requested one ourselves
             $entity = GETPOSTISSET('entity') ? GETPOSTINT('entity') : (int) $parameters['entity'];
 
             // Only documents of another entity need their path rewritten: those of the current one are already right
             $referer = $_SERVER['HTTP_REFERER'] ?? '';
             if ($parameters['modulepart'] == 'digiriskdolibarr' && $entity > 0 && $entity != (int) $conf->entity && strpos($referer, dol_buildpath('custom/digiboard/index.php', 1)) !== false) {
+                // The entity and the referer are both forgeable: serve another entity's documents only to a user
+                // allowed to log into it, with the same check as the core login
+                $fuser = (!empty($parameters['fuser']) && is_object($parameters['fuser'])) ? $parameters['fuser'] : $user;
+                if (!isModEnabled('multicompany') || !is_object($mc) || $mc->checkRight($fuser->id, $entity) <= 0) {
+                    return 0;
+                }
+
                 $filePath                       = preg_split('/' . $parameters['modulepart'] . '/', $parameters['original_file']);
                 $this->results['original_file'] = $filePath[0] . $entity . '/' . $parameters['modulepart'] . $filePath[1];
                 return 1;
