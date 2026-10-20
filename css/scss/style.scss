@@ -1,0 +1,6 @@
+/* DigiBoard stylesheet, compiled into css/digiboard.min.css by the build-assets.js script of Saturne:
+   node build-assets.js --module=digiboard (from the saturne folder). saturne_header() loads it on every
+   DigiBoard page, after the stylesheet of Saturne. */
+
+// Modern back office theme, imported last so that it wins over the rules above it
+@use "theme/theme";

@@ -153,7 +153,7 @@ if (!$result['success']) {
     exit;
 }
 
-print '<form method="GET" action="' . $_SERVER['PHP_SELF'] . '" class="paddingbottom">';
+print '<form method="GET" action="' . $_SERVER['PHP_SELF'] . '" class="paddingbottom digiboard-filter-bar">';
 print '<span class="opacitymedium paddingright">' . $langs->trans('RemoteInstance') . '</span>';
 
 $instanceOptions = [];

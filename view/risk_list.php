@@ -231,7 +231,7 @@ foreach ($sortedCategories as $cat) {
     $pictoImg = '';
     if (!empty($cat['thumbnail_name'])) {
         $pictoPath = '/custom/digiriskdolibarr/img/categorieDangers/' . $cat['thumbnail_name'] . '.png';
-        $pictoImg = '<img src="' . dol_buildpath($pictoPath, 1) . '" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 6px;">';
+        $pictoImg = '<img src="' . dol_buildpath($pictoPath, 1) . '" class="notion-category-option-picto">';
     }
     $categoryOptions[$pos] = [
         'label'     => $cat['name'],
@@ -723,396 +723,6 @@ $protectionsByElement = $fetchProtectionsByElement(array_map(function ($risk) {
 
 saturne_header(0, '', $title, $helpUrl);
 
-// Notion-Style CSS
-print '<style>
-.notion-wrapper {
-    margin-top: 15px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: #37352f;
-}
-.notion-header-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 12px;
-}
-.notion-tab-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #6b7280;
-    text-decoration: none;
-    transition: all 0.15s ease;
-}
-.notion-tab-link:hover {
-    background-color: #f3f4f6;
-    color: #111827;
-    text-decoration: none;
-}
-.notion-tab-link.active {
-    background-color: #eff6ff;
-    color: #1d4ed8;
-    font-weight: 600;
-}
-.notion-metrics-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 16px;
-    align-items: center;
-}
-.notion-metric-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border-radius: 9999px;
-    font-size: 13px;
-    font-weight: 500;
-    text-decoration: none;
-    border: 1px solid transparent;
-    transition: all 0.15s ease;
-    cursor: pointer;
-}
-.notion-metric-pill:hover {
-    filter: brightness(0.95);
-    text-decoration: none;
-}
-.notion-metric-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 22px;
-    height: 22px;
-    padding: 0 6px;
-    border-radius: 9999px;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-/* Metric Colors */
-.metric-all, .metric-all:link, .metric-all:visited { background-color: #f3f4f6; color: #374151 !important; }
-.metric-all:hover { background-color: #e5e7eb; color: #111827 !important; text-decoration: none; }
-.metric-all .notion-metric-count { background: #3b82f6; color: #ffffff !important; }
-.metric-all.active { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25); }
-
-.metric-low, .metric-low:link, .metric-low:visited { background-color: #f1f5f9; color: #4b5563 !important; }
-.metric-low:hover { background-color: #e2e8f0; color: #1e293b !important; text-decoration: none; }
-.metric-low .notion-metric-count { background: #64748b; color: #ffffff !important; }
-.metric-low.active { border-color: #64748b; box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.25); }
-
-.metric-plan, .metric-plan:link, .metric-plan:visited { background-color: #fffbeb; color: #92400e !important; }
-.metric-plan:hover { background-color: #fef3c7; color: #78350f !important; text-decoration: none; }
-.metric-plan .notion-metric-count { background: #f59e0b; color: #ffffff !important; }
-.metric-plan.active { border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25); }
-
-.metric-treat, .metric-treat:link, .metric-treat:visited { background-color: #fef2f2; color: #991b1b !important; }
-.metric-treat:hover { background-color: #fee2e2; color: #7f1d1d !important; text-decoration: none; }
-.metric-treat .notion-metric-count { background: #ef4444; color: #ffffff !important; }
-.metric-treat.active { border-color: #ef4444; box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25); }
-
-.metric-unacceptable, .metric-unacceptable:link, .metric-unacceptable:visited { background-color: #111827; color: #ffffff !important; }
-.metric-unacceptable:hover { background-color: #1f2937; color: #ffffff !important; text-decoration: none; }
-.metric-unacceptable .notion-metric-count { background: #dc2626; color: #ffffff !important; }
-.metric-unacceptable.active { border-color: #ffffff; box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.4); }
-
-.metric-none, .metric-none:link, .metric-none:visited { background-color: #f8fafc; color: #64748b !important; border: 1px dashed #cbd5e1; }
-.metric-none:hover { background-color: #f1f5f9; color: #334155 !important; text-decoration: none; }
-.metric-none .notion-metric-count { background: #94a3b8; color: #ffffff !important; }
-.metric-none.active { border-color: #64748b; box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.25); }
-
-.notion-filter-card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-}
-.notion-search-group {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-    min-width: 220px;
-}
-.notion-search-group input[type="text"] {
-    flex: 1;
-    min-width: 120px;
-}
-.notion-search-group .button {
-    margin: 0 !important;
-    white-space: nowrap;
-}
-.notion-btn-reset {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    min-width: 30px !important;
-    max-width: 30px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-radius: 4px;
-    background-color: #f1f5f9;
-    color: #64748b;
-    border: 1px solid #cbd5e1;
-    font-size: 13px;
-    line-height: 1;
-    text-decoration: none !important;
-    transition: all 0.15s ease;
-    cursor: pointer;
-    box-sizing: border-box;
-    flex-shrink: 0;
-}
-.notion-btn-reset:hover {
-    background-color: #fee2e2;
-    color: #dc2626;
-    border-color: #fca5a5;
-    text-decoration: none !important;
-}
-.notion-table-card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    overflow: hidden;
-}
-.notion-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-.notion-table th {
-    background: #f9fafb;
-    padding: 10px 14px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 12px;
-    color: #4b5563;
-    border-bottom: 1px solid #e5e7eb;
-    letter-spacing: 0.02em;
-}
-.notion-table td {
-    padding: 12px 14px;
-    border-bottom: 1px solid #f3f4f6;
-    vertical-align: top;
-}
-.notion-table tr:last-child td {
-    border-bottom: none;
-}
-.notion-table tr:hover td {
-    background-color: #fbfcfd;
-}
-
-/* Notion Tag & Pill Badges */
-.notion-badge-ref {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-weight: 700;
-    font-size: 13px;
-    color: #1e40af;
-    text-decoration: none;
-}
-.notion-badge-ref:hover {
-    text-decoration: underline;
-}
-.notion-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 500;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.notion-tag-establishment {
-    background-color: #f1f5f9;
-    color: #1e293b;
-    border: 1px solid #cbd5e1;
-}
-.notion-tag-groupment {
-    background-color: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fde68a;
-}
-.notion-tag-workunit {
-    background-color: #ecfdf5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
-}
-.notion-status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border-radius: 9999px;
-    font-size: 12px;
-    font-weight: 600;
-}
-.status-low { background: #f1f5f9; color: #4b5563; border: 1px solid #cbd5e1; }
-.status-plan { background: #fef3c7; color: #92400e; }
-.status-treat { background: #fee2e2; color: #991b1b; }
-.status-unacceptable { background: #111827; color: #ffffff !important; }
-.status-none { background: #f1f5f9; color: #64748b; }
-
-/* Advanced Cotation Criteria */
-.notion-criteria {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin-top: 6px;
-    font-size: 11px;
-    color: #4b5563;
-}
-.notion-criterion {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.notion-criterion-label {
-    min-width: 74px;
-}
-.notion-criterion-gauge {
-    display: inline-flex;
-    gap: 2px;
-}
-.notion-criterion-gauge span {
-    width: 10px;
-    height: 6px;
-    border-radius: 2px;
-    background-color: #e5e7eb;
-}
-.notion-criterion-gauge span.on {
-    background-color: #64748b;
-}
-.notion-criterion-value {
-    font-weight: 700;
-    color: #1f2937;
-}
-
-/* Checklist Task Styling */
-/* Protection Means */
-.notion-protection-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    max-width: 128px;
-}
-.notion-protection-picto {
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
-    object-fit: contain;
-}
-.notion-empty-text {
-    font-size: 12px;
-    color: #9ca3af;
-    font-style: italic;
-}
-
-.notion-task-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 6px;
-}
-.notion-task-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    background: #f9fafb;
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: 1px solid #f3f4f6;
-    font-size: 12px;
-}
-.notion-task-check {
-    margin-top: 2px;
-    font-size: 14px;
-    min-width: 18px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-.notion-task-check.completed { color: #10b981; }
-.notion-task-check.pending { color: #9ca3af; }
-.notion-task-pct {
-    font-size: 10px;
-    font-weight: 700;
-    color: #1d4ed8;
-    background-color: #dbeafe;
-    border: 1px solid #bfdbfe;
-    padding: 1px 5px;
-    border-radius: 9999px;
-    line-height: 12px;
-    white-space: nowrap;
-}
-.notion-task-content {
-    flex: 1;
-}
-.notion-task-title {
-    font-weight: 500;
-    color: #1f2937;
-}
-.notion-task-meta {
-    font-size: 11px;
-    color: #6b7280;
-    display: flex;
-    gap: 8px;
-    margin-top: 2px;
-}
-.notion-task-overdue {
-    color: #dc2626;
-    font-weight: 600;
-}
-.notion-progress-mini {
-    width: 60px;
-    height: 6px;
-    background: #e5e7eb;
-    border-radius: 9999px;
-    overflow: hidden;
-    display: inline-block;
-    vertical-align: middle;
-}
-.notion-progress-bar {
-    height: 100%;
-    background: #10b981;
-}
-.notion-action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 10px;
-    background-color: #f3f4f6;
-    color: #374151;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background 0.15s ease;
-}
-.notion-action-btn:hover {
-    background-color: #e5e7eb;
-    color: #111827;
-    text-decoration: none;
-}
-</style>';
-
 print '<div class="notion-wrapper">';
 
 // Header: Risk Type Tabs (Professionnels / Environnementaux)
@@ -1155,7 +765,7 @@ print '<input type="hidden" name="cotation_filter" value="' . dol_escape_htmltag
 
 // Establishment (Company/Entity) Selector
 if (count($entities) > 1) {
-    print '<div style="display: inline-flex; align-items: center; gap: 8px;">';
+    print '<div class="notion-filter-group">';
     print '<span class="opacitymedium" title="' . dol_escape_htmltag($langs->trans('FilterByEstablishment')) . '"><i class="fas fa-building pictofixedwidth"></i></span>';
     $estabOptions = [0 => '-- ' . $langs->trans('AllEstablishments') . ' --'];
     foreach ($entities as $eid => $elabel) {
@@ -1166,13 +776,13 @@ if (count($entities) > 1) {
 }
 
 // Groupment & WorkUnit (GP/UT) Selector
-print '<div style="display: inline-flex; align-items: center; gap: 8px;">';
+print '<div class="notion-filter-group">';
 print '<span class="opacitymedium" title="' . dol_escape_htmltag($langs->trans('FilterByGroupmentAndUnit')) . '"><i class="fas fa-sitemap pictofixedwidth"></i></span>';
 print Form::selectarray('element_id', $elementOptions, $elementId, 0, 0, 0, '', 0, 0, 0, '', 'minwidth250', 1);
 print '</div>';
 
 // Category Selector
-print '<div style="display: inline-flex; align-items: center; gap: 8px;">';
+print '<div class="notion-filter-group">';
 print '<span class="opacitymedium" title="' . dol_escape_htmltag($langs->trans('FilterByCategory')) . '"><i class="fas fa-exclamation-triangle pictofixedwidth"></i></span>';
 print Form::selectarray('category_id', $categoryOptions, $categoryId, 0, 0, 0, '', 0, 0, 0, '', 'minwidth220', 1);
 print '<script nonce="' . getNonce() . '">
@@ -1230,9 +840,9 @@ print_liste_field_titre('Description', $_SERVER['PHP_SELF'], 'description', '', 
 print_liste_field_titre($langs->trans('Establishment'), $_SERVER['PHP_SELF'], 'entity', '', $param, '', $sortfield, $sortorder);
 print_liste_field_titre($langs->trans('GroupmentAndUnit'), $_SERVER['PHP_SELF'], 'element', '', $param, '', $sortfield, $sortorder);
 print_liste_field_titre($langs->trans('RiskLevel'), $_SERVER['PHP_SELF'], 'cotation', '', $param, '', $sortfield, $sortorder);
-print '<th class="nowraponall"><i class="fas fa-hard-hat"></i> ' . $langs->trans('ProtectionMeans') . '</th>';
+print '<th class="notion-col-protection"><i class="fas fa-hard-hat"></i> ' . $langs->trans('ProtectionMeans') . '</th>';
 print '<th><i class="fas fa-tasks"></i> ' . $langs->trans('ActionsAndTasks') . '</th>';
-print '<th class="center" style="width: 100px;">' . $langs->trans('Action') . '</th>';
+print '<th class="center notion-col-action">' . $langs->trans('Action') . '</th>';
 print '</tr></thead>';
 
 print '<tbody>';
@@ -1253,9 +863,9 @@ if (empty($risks)) {
         $pictoImg = '';
         if (!empty($catData['thumbnail_name'])) {
             $pictoPath = '/custom/digiriskdolibarr/img/categorieDangers/' . $catData['thumbnail_name'] . '.png';
-            $pictoImg = '<img src="' . dol_buildpath($pictoPath, 1) . '" alt="' . dol_escape_htmltag($catName) . '" title="' . dol_escape_htmltag($catName) . '" style="width: 28px; height: 28px; vertical-align: middle;">';
+            $pictoImg = '<img src="' . dol_buildpath($pictoPath, 1) . '" alt="' . dol_escape_htmltag($catName) . '" title="' . dol_escape_htmltag($catName) . '" class="notion-category-picto">';
         } else {
-            $pictoImg = '<i class="fas fa-exclamation-triangle" title="' . dol_escape_htmltag($catName) . '" style="color: #f59e0b; font-size: 20px; vertical-align: middle;"></i>';
+            $pictoImg = '<i class="fas fa-exclamation-triangle notion-category-fallback" title="' . dol_escape_htmltag($catName) . '"></i>';
         }
 
         // Cotation Badge Info
@@ -1267,36 +877,36 @@ if (empty($risks)) {
         print '<tr>';
 
         // Column 1: Ref
-        print '<td class="nowraponall" style="width: 80px;">';
+        print '<td class="nowraponall notion-col-ref">';
         print '<a href="' . $urlRiskCard . '" class="notion-badge-ref" title="' . dol_escape_htmltag($langs->trans('ViewRiskCard')) . '">';
         print dol_escape_htmltag($r->ref);
         print '</a>';
         print '</td>';
 
         // Column 2: Danger Category Picto
-        print '<td class="center" style="width: 50px;">';
+        print '<td class="center notion-col-category">';
         print $pictoImg;
         print '</td>';
 
         // Column 3: Description
-        print '<td>';
-        print '<div style="font-weight: 600; color: #1f2937; margin-bottom: 2px;">' . dol_escape_htmltag($r->description) . '</div>';
+        print '<td class="notion-col-description">';
+        print '<div class="notion-description">' . dol_escape_htmltag($r->description) . '</div>';
         if (!empty($catName)) {
-            print '<div style="font-size: 11px; color: #9ca3af;">' . dol_escape_htmltag($catName) . '</div>';
+            print '<div class="notion-description-category">' . dol_escape_htmltag($catName) . '</div>';
         }
         print '</td>';
 
         // Column 3: Establishment (Company / Entity)
-        print '<td style="min-width: 140px;">';
+        print '<td class="notion-col-establishment">';
         print '<div class="notion-tag notion-tag-establishment">';
         print '<i class="fas fa-building pictofixedwidth"></i> ' . dol_escape_htmltag($riskEntityName);
         print '</div>';
         print '</td>';
 
         // Column 4: Groupment & WorkUnit (GP/UT)
-        print '<td style="min-width: 180px;">';
+        print '<td class="notion-col-element">';
         if (!empty($r->parent_label)) {
-            print '<div class="notion-tag notion-tag-groupment" style="margin-bottom: 4px;" title="' . dol_escape_htmltag($langs->trans('Groupment')) . '">';
+            print '<div class="notion-tag notion-tag-groupment" title="' . dol_escape_htmltag($langs->trans('Groupment')) . '">';
             print '<i class="fas fa-folder pictofixedwidth"></i> ' . dol_escape_htmltag($r->parent_label);
             print '</div><br>';
             print '<div class="notion-tag notion-tag-workunit" title="' . dol_escape_htmltag($langs->trans('WorkUnit')) . '">';
@@ -1314,7 +924,7 @@ if (empty($risks)) {
         print '</td>';
 
         // Column 5: Cotation & Last Assessment
-        print '<td style="min-width: 180px;">';
+        print '<td class="notion-col-cotation">';
         print '<div class="notion-status-pill ' . $statusClass . '">';
         print dol_escape_htmltag($statusLabel);
         print '</div>';
@@ -1337,7 +947,7 @@ if (empty($risks)) {
             print '</div>';
         }
         if ($cotationVal !== null) {
-            print '<div style="font-size: 11px; color: #6b7280; margin-top: 5px;">';
+            print '<div class="notion-assessment-meta">';
             if (!empty($r->ra_user_firstname) || !empty($r->ra_user_lastname)) {
                 $evaluatorName = trim($r->ra_user_firstname . ' ' . $r->ra_user_lastname);
                 print '<i class="fas fa-user-check"></i> ' . dol_escape_htmltag($evaluatorName) . ' &bull; ';
@@ -1347,7 +957,7 @@ if (empty($risks)) {
             }
             print '</div>';
             if (!empty($r->ra_comment)) {
-                print '<div style="font-size: 11px; color: #4b5563; font-style: italic; margin-top: 3px;" title="' . dol_escape_htmltag($r->ra_comment) . '">';
+                print '<div class="notion-assessment-comment" title="' . dol_escape_htmltag($r->ra_comment) . '">';
                 print '&laquo; ' . dol_trunc(dol_escape_htmltag($r->ra_comment), 60) . ' &raquo;';
                 print '</div>';
             }
@@ -1379,15 +989,16 @@ if (empty($risks)) {
             }
         }
 
-        print '<td style="min-width: 280px;">';
+        print '<td class="notion-col-tasks">';
         if ($nbTasks === 0) {
-            print '<span style="font-size: 12px; color: #9ca3af; font-style: italic;">' . $langs->trans('NoTasks') . '</span>';
+            print '<span class="notion-empty-text">' . $langs->trans('NoTasks') . '</span>';
         } else {
             $pctDone = round(($nbDone / $nbTasks) * 100);
-            print '<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">';
-            print '<span style="font-size: 12px; font-weight: 600; color: #374151;">' . $langs->trans('TasksCompleted', $nbDone, $nbTasks) . '</span>';
+            print '<div class="notion-task-summary">';
+            print '<span class="notion-task-summary-label">' . $langs->trans('TasksCompleted', $nbDone, $nbTasks) . '</span>';
+            // The width of the bar is the data itself
             print '<div class="notion-progress-mini"><div class="notion-progress-bar" style="width: ' . $pctDone . '%;"></div></div>';
-            print '<span style="font-size: 11px; color: #6b7280;">' . $pctDone . '%</span>';
+            print '<span class="notion-task-summary-percent">' . $pctDone . '%</span>';
             print '</div>';
 
             print '<div class="notion-task-list">';
@@ -1419,7 +1030,7 @@ if (empty($risks)) {
                 }
 
                 print '<div class="notion-task-content">';
-                print '<a href="' . $urlTask . '" target="_blank" rel="noopener" style="font-weight: 600; color: #2563eb; text-decoration: none; margin-right: 4px;">';
+                print '<a href="' . $urlTask . '" target="_blank" rel="noopener" class="notion-task-ref">';
                 print dol_escape_htmltag($tk->ref);
                 print '</a>';
                 print '<span class="notion-task-title">' . dol_escape_htmltag($tk->label) . '</span>';
@@ -1448,7 +1059,7 @@ if (empty($risks)) {
         print '</td>';
 
         // Column 6: Action Button
-        print '<td class="center" style="vertical-align: middle;">';
+        print '<td class="center notion-col-action">';
         print '<a href="' . $urlRiskCard . '" class="notion-action-btn" title="' . dol_escape_htmltag($langs->trans('ViewRiskCard')) . '">';
         print '<i class="fas fa-external-link-alt"></i> ' . $langs->trans('ViewRiskCard');
         print '</a>';

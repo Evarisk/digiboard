@@ -1,0 +1,6 @@
+/* DigiBoard modern theme: the DigiBoard components on top of the shared theme of Saturne, imported last so that
+   it wins over the rules above it. Every rule is scoped by $dgb-scope (see _tokens.scss). */
+
+@use 'risk-list';
+@use 'dashboard';
+@use 'misc';
