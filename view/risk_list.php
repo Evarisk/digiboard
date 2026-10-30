@@ -442,18 +442,22 @@ if ($resCounts) {
     $db->free($resCounts);
 }
 
+// Date of an assessment the way Digirisk prints it: the date typed in the assessment when the setup shows it,
+// the date the assessment was made otherwise
+$assessmentDateSql = getDolGlobalInt('DIGIRISKDOLIBARR_SHOW_RISKASSESSMENT_DATE') ? 'COALESCE(ra.date_riskassessment, ra.date_creation)' : 'ra.date_creation';
+
 // Build Main Risks Query
 $sql  = "SELECT r.rowid, r.ref, r.description, r.category, r.status, r.type, r.entity,";
 $sql .= " e.rowid as element_id, e.ref as element_ref, e.label as element_label, e.element_type,";
 $sql .= " p.rowid as parent_id, p.ref as parent_ref, p.label as parent_label,";
-$sql .= " ra.rowid as ra_id, ra.ref as ra_ref, ra.cotation, ra.date_riskassessment, ra.comment as ra_comment,";
+$sql .= " ra.rowid as ra_id, ra.ref as ra_ref, ra.cotation, " . $assessmentDateSql . " as ra_date, ra.comment as ra_comment,";
 $sql .= " ra.method as ra_method, ra.gravite as ra_gravite, ra.exposition as ra_exposition, ra.occurrence as ra_occurrence, ra.formation as ra_formation, ra.protection as ra_protection,";
 $sql .= " u.rowid as ra_user_id, u.firstname as ra_user_firstname, u.lastname as ra_user_lastname";
 $sql .= " FROM " . MAIN_DB_PREFIX . "digiriskdolibarr_risk r";
 $sql .= " INNER JOIN " . MAIN_DB_PREFIX . "digiriskdolibarr_digiriskelement e ON e.rowid = r.fk_element";
 $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "digiriskdolibarr_digiriskelement p ON p.rowid = e.fk_parent";
 $sql .= " LEFT JOIN (";
-$sql .= "   SELECT ra1.rowid, ra1.fk_risk, ra1.ref, ra1.cotation, ra1.date_riskassessment, ra1.comment, ra1.fk_user_creat,";
+$sql .= "   SELECT ra1.rowid, ra1.fk_risk, ra1.ref, ra1.cotation, ra1.date_riskassessment, ra1.date_creation, ra1.comment, ra1.fk_user_creat,";
 $sql .= "   ra1.method, ra1.gravite, ra1.exposition, ra1.occurrence, ra1.formation, ra1.protection";
 $sql .= "   FROM " . MAIN_DB_PREFIX . "digiriskdolibarr_riskassessment ra1";
 $sql .= "   INNER JOIN (";
@@ -514,7 +518,7 @@ if ($sortfield === 'ref') {
 } elseif ($sortfield === 'element') {
     $orderClause .= "e.label " . $sortorder;
 } elseif ($sortfield === 'date') {
-    $orderClause .= "ra.date_riskassessment " . $sortorder;
+    $orderClause .= $assessmentDateSql . " " . $sortorder;
 } else {
     // Default: cotation DESC, then ref ASC
     $orderClause .= "CASE WHEN ra.cotation IS NULL THEN -1 ELSE ra.cotation END " . $sortorder . ", r.ref ASC";
@@ -671,7 +675,7 @@ if ($action == 'export_csv' || $action == 'export_xlsx') {
         foreach ($cotationCriteria as $column => $criterion) {
             $cells[] = $riskCriteria[$column] ?? '';
         }
-        $cells[] = !empty($r->date_riskassessment) ? dol_print_date($db->jdate($r->date_riskassessment), 'day') : '';
+        $cells[] = !empty($r->ra_date) ? dol_print_date($db->jdate($r->ra_date), 'day') : '';
         $cells[] = trim($r->ra_user_firstname . ' ' . $r->ra_user_lastname);
         $cells[] = $r->ra_comment;
 
@@ -1371,8 +1375,8 @@ if (empty($risks)) {
                 $evaluatorName = trim($r->ra_user_firstname . ' ' . $r->ra_user_lastname);
                 print '<i class="fas fa-user-check"></i> ' . dol_escape_htmltag($evaluatorName) . ' &bull; ';
             }
-            if (!empty($r->date_riskassessment)) {
-                print dol_print_date($db->jdate($r->date_riskassessment), 'day');
+            if (!empty($r->ra_date)) {
+                print dol_print_date($db->jdate($r->ra_date), 'day');
             }
             print '</div>';
             if (!empty($r->ra_comment)) {
