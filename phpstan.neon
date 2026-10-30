@@ -93,6 +93,8 @@ parameters:
         - ../../holiday/class/
         - ../../includes/odtphp/
         - ../../includes/parsedown/
+        # Export Excel du listing simplifie des risques (class/digiboardrisklistexport.class.php)
+        - ../../includes/phpoffice/phpspreadsheet/src/PhpSpreadsheet/
         - ../../includes/restler/framework/
         - ../../mrp/class/
         - ../../product/class/

@@ -524,7 +524,7 @@ if ($sortfield === 'ref') {
 $fetchTasksByRisk = function (array $riskIds) use ($db) {
     $tasksByRisk = [];
     foreach (array_chunk($riskIds, 500) as $chunkIds) {
-        $sqlTasks  = "SELECT t.rowid, t.ref, t.label, t.progress, t.dateo, t.datee, te.fk_risk,";
+        $sqlTasks  = "SELECT t.rowid, t.ref, t.label, t.progress, t.dateo, t.datee, t.planned_workload, t.budget_amount, te.fk_risk,";
         $sqlTasks .= " u.rowid as user_id, u.firstname, u.lastname";
         $sqlTasks .= " FROM " . MAIN_DB_PREFIX . "projet_task t";
         $sqlTasks .= " JOIN " . MAIN_DB_PREFIX . "projet_task_extrafields te ON te.fk_object = t.rowid";
@@ -573,8 +573,8 @@ $getProtectionLabel = function ($protection) use ($protectionCategories) {
     return $protectionCategories[(int) $protection->category]['name'] . ($description !== '' ? ' : ' . $description : '');
 };
 
-// CSV export of the whole filtered list (no pagination), one line per risk carrying its whole action plan
-if ($action == 'export_csv') {
+// Exports of the whole filtered list (no pagination), in the order of the list
+if ($action == 'export_csv' || $action == 'export_xlsx') {
     $resExport = $db->query($sql . $orderClause);
     if (!$resExport) {
         dol_print_error($db);
@@ -590,6 +590,33 @@ if ($action == 'export_csv') {
         return (int) $risk->element_id;
     }, array_values($exportRisks)));
 
+    // Excel export: the same risks under several views, one sheet each
+    if ($action == 'export_xlsx') {
+        require_once __DIR__ . '/../class/digiboardrisklistexport.class.php';
+
+        $export                       = new DigiboardRiskListExport($db);
+        $export->riskType             = $riskType;
+        $export->entities             = $entities;
+        $export->dangerCategories     = $dangerCategories;
+        $export->protectionCategories = $protectionCategories;
+        $export->cotationCriteria     = $cotationCriteria;
+        $export->cotationLevelMax     = $cotationLevelMax;
+        $export->riskLevelLabels      = $riskLevelLabels;
+        $export->filters              = [
+            $langs->transnoentities('RiskLevel')                => $langs->transnoentities($riskLevelLabels[$cotationFilter] ?? 'AllRisks'),
+            $langs->transnoentities('FilterByEstablishment')    => $filterEntity > 0 ? $entities[$filterEntity] : $langs->transnoentities('AllEstablishments'),
+            $langs->transnoentities('FilterByGroupmentAndUnit') => isset($elements[$elementId]) ? $elements[$elementId]->ref . ' - ' . $elements[$elementId]->label : $langs->transnoentities('AllGroupmentsAndUnits'),
+            $langs->transnoentities('FilterByCategory')         => $categoryId >= 0 ? $dangerCategories[$categoryId]['name'] : $langs->transnoentities('AllCategories'),
+            $langs->transnoentities('RiskXlsxSearch')           => $search,
+        ];
+
+        $fileName = str_replace(' ', '_', dol_sanitizeFileName($langs->transnoentities($riskType === 'riskenvironmental' ? 'RiskTypeEnvironmental' : 'RiskTypeProfessional')));
+        $export->send($exportRisks, $exportTasks, $exportProtections, $fileName . '_' . dol_print_date(dol_now(), 'dayhourlog'));
+        $db->close();
+        exit;
+    }
+
+    // CSV export, one line per risk carrying its whole action plan.
     // Every cell is enclosed, and a text starting like a formula is neutralized for spreadsheet software
     $separator = getDolGlobalString('EXPORT_CSV_SEPARATOR_TO_USE', ';');
     $csvLine   = function (array $cells) use ($separator) {
@@ -1214,8 +1241,10 @@ print '</form>';
 
 // Standard Dolibarr List Barre (Pagination & Counts)
 $param = '&risk_type=' . urlencode($riskType) . '&cotation_filter=' . urlencode($cotationFilter) . ($filterEntity > 0 ? '&filter_entity=' . $filterEntity : '') . ($elementId > 0 ? '&element_id=' . $elementId : '') . ($categoryId >= 0 ? '&category_id=' . $categoryId : '') . (!empty($search) ? '&search=' . urlencode($search) : '');
-$exportUrl     = $_SERVER['PHP_SELF'] . '?action=export_csv&token=' . newToken() . $param . '&sortfield=' . urlencode($sortfield) . '&sortorder=' . urlencode($sortorder);
-$morehtmlright = dolGetButtonTitle($langs->trans('ExportCSV'), $langs->trans('ExportRiskListCSVHelp'), 'fa fa-file-csv', $exportUrl);
+$exportUrl      = $_SERVER['PHP_SELF'] . '?action=export_csv&token=' . newToken() . $param . '&sortfield=' . urlencode($sortfield) . '&sortorder=' . urlencode($sortorder);
+$exportXlsxUrl  = $_SERVER['PHP_SELF'] . '?action=export_xlsx&token=' . newToken() . $param . '&sortfield=' . urlencode($sortfield) . '&sortorder=' . urlencode($sortorder);
+$morehtmlright  = dolGetButtonTitle($langs->trans('ExportXLSX'), $langs->trans('ExportRiskListXLSXHelp'), 'fa fa-file-excel', $exportXlsxUrl);
+$morehtmlright .= dolGetButtonTitle($langs->trans('ExportCSV'), $langs->trans('ExportRiskListCSVHelp'), 'fa fa-file-csv', $exportUrl);
 print_barre_liste('', $page, $_SERVER['PHP_SELF'], $param, $sortfield, $sortorder, '', count($risks), $totalRows, 'fa-exclamation-triangle', 0, $morehtmlright, '', $limit, 0, 0, 1);
 
 // Notion Table
