@@ -21,20 +21,12 @@
  * \brief   Excel export of the simplified risk list, one sheet per view of the data
  */
 
-require_once DOL_DOCUMENT_ROOT . '/includes/phpoffice/phpspreadsheet/src/autoloader.php';
-require_once DOL_DOCUMENT_ROOT . '/includes/Psr/autoloader.php';
-require_once PHPEXCELNEW_PATH . 'Spreadsheet.php';
+// The workbook, its tables and its summary are written by the base export of Saturne
+dol_include_once('/saturne/class/saturnexlsxexport.class.php');
 
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 /**
  * Class for DigiboardRiskListExport
@@ -43,7 +35,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
  * their assessments, then lays the same data out under several views, so that a report or a chart can be built
  * from any of them without reworking a flat file.
  */
-class DigiboardRiskListExport
+class DigiboardRiskListExport extends SaturneXlsxExport
 {
     /**
      * Colours of the Digirisk cotation chips, as in the risk overview workbook of Digirisk: background, text
@@ -55,16 +47,6 @@ class DigiboardRiskListExport
         'unacceptable' => ['2B2B2B', 'FFFFFF'],
         'none'         => ['F1F5F9', '64748B'],
     ];
-
-    /**
-     * Colours of the head rows: background, text
-     */
-    public const HEAD_COLOURS = ['263C5C', 'FFFFFF'];
-
-    /**
-     * @var DoliDB Database handler
-     */
-    public DoliDB $db;
 
     /**
      * @var string Risk type of the list: risk or riskenvironmental
@@ -102,42 +84,7 @@ class DigiboardRiskListExport
     public array $riskLevelLabels = [];
 
     /**
-     * @var array Filters of the list, as label => value, printed on the summary
-     */
-    public array $filters = [];
-
-    /**
-     * @var Spreadsheet Workbook being built
-     */
-    protected Spreadsheet $spreadsheet;
-
-    /**
-     * @var array Sheets after the summary, with their description and their number of lines, for the contents
-     */
-    protected array $contents = [];
-
-    /**
-     * @var string Excel format of a date, from the date format of the user language
-     */
-    protected string $dateFormat = 'dd/mm/yyyy';
-
-    /**
-     * @var int Date of the export
-     */
-    protected int $now = 0;
-
-    /**
-     * Constructor
-     *
-     * @param DoliDB $db Database handler
-     */
-    public function __construct(DoliDB $db)
-    {
-        $this->db = $db;
-    }
-
-    /**
-     * Send the workbook to the browser
+     * Build the workbook and send it to the browser
      *
      * @param  array  $risks                Rows of the risk list query, by risk id, in the order of the list
      * @param  array  $tasksByRisk          Action plan tasks, by risk id
@@ -145,39 +92,25 @@ class DigiboardRiskListExport
      * @param  string $fileName             Name of the file, without extension
      * @return void
      */
-    public function send(array $risks, array $tasksByRisk, array $protectionsByElement, string $fileName): void
+    public function export(array $risks, array $tasksByRisk, array $protectionsByElement, string $fileName): void
     {
-        $spreadsheet = $this->build($risks, $tasksByRisk, $protectionsByElement);
-
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="' . $fileName . '.xlsx"');
-        header('Cache-Control: max-age=0');
-
-        $writer = new Xlsx($spreadsheet);
-        $writer->save('php://output');
+        $this->build($risks, $tasksByRisk, $protectionsByElement);
+        $this->send($fileName);
     }
 
     /**
-     * Build the workbook: a summary, then the detailed sheets, then the sheets that sum the risks up
+     * Build the workbook: the detailed sheets, then the sheets that sum the risks up, then the summary
      *
-     * @param  array       $risks                Rows of the risk list query, by risk id, in the order of the list
-     * @param  array       $tasksByRisk          Action plan tasks, by risk id
-     * @param  array       $protectionsByElement Protection signs, by groupment or work unit id
-     * @return Spreadsheet                       Workbook
+     * @param  array $risks                Rows of the risk list query, by risk id, in the order of the list
+     * @param  array $tasksByRisk          Action plan tasks, by risk id
+     * @param  array $protectionsByElement Protection signs, by groupment or work unit id
+     * @return void
      */
-    public function build(array $risks, array $tasksByRisk, array $protectionsByElement): Spreadsheet
+    public function build(array $risks, array $tasksByRisk, array $protectionsByElement): void
     {
         global $langs, $mysoc;
 
-        $this->now        = dol_now();
-        $this->dateFormat = strtolower($langs->transnoentities('FormatDateShortJava'));
-        $this->contents   = [];
-
-        $this->spreadsheet = new Spreadsheet();
-        $this->spreadsheet->getProperties()->setCreator('DigiBoard')->setTitle($langs->transnoentities('SimplifiedRiskList') . ' - ' . $mysoc->name);
-        $this->spreadsheet->getDefaultStyle()->getFont()->setName('Calibri')->setSize(10);
-        $this->spreadsheet->getDefaultStyle()->getAlignment()->setVertical(Alignment::VERTICAL_TOP);
-        $summarySheet = $this->spreadsheet->getActiveSheet();
+        $this->start($langs->transnoentities('SimplifiedRiskList') . ' - ' . $mysoc->name, 'DigiBoard');
 
         $assessmentsByRisk = $this->fetchAssessments(array_keys($risks));
         $records           = [];
@@ -195,11 +128,7 @@ class DigiboardRiskListExport
         $this->addMapSheet($records);
         $this->addCriteriaSheet($records);
         $this->addScheduleSheet($records);
-        $this->fillSummarySheet($summarySheet, $records, $protectionsByElement);
-
-        $this->spreadsheet->setActiveSheetIndex(0);
-
-        return $this->spreadsheet;
+        $this->writeSummary($records, $protectionsByElement);
     }
 
     /**
@@ -281,6 +210,7 @@ class DigiboardRiskListExport
 
             $taskRecords[] = [
                 'task'     => $task,
+                'url'      => $this->getCardUrl('opentask', (int) $task->rowid, (int) $risk->entity),
                 'progress' => $progress,
                 'dueDate'  => $dueDate,
                 'overdue'  => $overdue,
@@ -296,6 +226,7 @@ class DigiboardRiskListExport
 
         return [
             'risk'          => $risk,
+            'url'           => $this->getCardUrl('openrisk', (int) $risk->rowid, (int) $risk->entity),
             'establishment' => $this->entities[(int) $risk->entity] ?? '',
             'groupment'     => $groupment,
             'workUnit'      => $workUnit,
@@ -309,6 +240,30 @@ class DigiboardRiskListExport
             'protections'   => $protectionLabels,
             'tasks'         => $taskRecords,
         ];
+    }
+
+    /**
+     * URL opening the card of a risk or of a task from the workbook, the way the list opens it: directly in the
+     * current entity, through the list otherwise, which switches the session to the entity of the object first
+     *
+     * @param  string $action   Action of the list: openrisk or opentask
+     * @param  int    $id       Id of the risk or of the task
+     * @param  int    $entity   Entity of the risk
+     * @return string           Full URL
+     */
+    protected function getCardUrl(string $action, int $id, int $entity): string
+    {
+        global $conf;
+
+        if ($entity > 0 && $entity != $conf->entity) {
+            $url = dol_buildpath('/digiboard/view/risk_list.php', 1) . '?action=' . $action . '&open_id=' . $id . '&open_entity=' . $entity;
+        } elseif ($action === 'openrisk') {
+            $url = dol_buildpath('/digiriskdolibarr/view/risk/risk_card.php', 1) . '?id=' . $id;
+        } else {
+            $url = DOL_URL_ROOT . '/projet/tasks/task.php?id=' . $id . '&withproject=1';
+        }
+
+        return $this->getAbsoluteUrl($url);
     }
 
     /**
@@ -387,27 +342,6 @@ class DigiboardRiskListExport
     }
 
     /**
-     * Excel date of a date of the database, at the day the list prints
-     *
-     * @param  string|null $value Date as read from the database
-     * @return float|int|null     Excel date, null when empty
-     */
-    protected function getExcelDate(?string $value)
-    {
-        if (empty($value)) {
-            return null;
-        }
-        $timestamp = $this->db->jdate($value);
-        if (empty($timestamp)) {
-            return null;
-        }
-        // Built from the printed day rather than from the timestamp, which PhpSpreadsheet would read as UTC
-        $day = array_map('intval', explode('-', dol_print_date($timestamp, '%Y-%m-%d')));
-
-        return ExcelDate::formattedPHPToExcel($day[0], $day[1], $day[2]);
-    }
-
-    /**
      * Excel date of an assessment, the way Digirisk prints it: the date typed in the assessment when the setup
      * shows it, the date the assessment was made otherwise
      *
@@ -433,147 +367,32 @@ class DigiboardRiskListExport
     {
         global $langs;
 
-        return ['value' => $langs->transnoentities($this->riskLevelLabels[$level]), 'level' => $level];
+        return ['value' => $langs->transnoentities($this->riskLevelLabels[$level]), 'colours' => self::LEVEL_COLOURS[$level]];
     }
 
     /**
-     * Style array of the given colours
+     * Cell of a cotation, coloured as its level
      *
-     * @param  array $colours Background and text colours
-     * @param  bool  $bold    Bold text
-     * @return array          Style array
+     * @param  int|null $cotation Cotation
+     * @return array              Cell
      */
-    protected function getColourStyle(array $colours, bool $bold = false): array
+    protected function getCotationCell(?int $cotation): array
     {
-        return [
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $colours[0]]],
-            'font' => ['color' => ['rgb' => $colours[1]], 'bold' => $bold],
-        ];
+        return ['value' => $cotation, 'colours' => self::LEVEL_COLOURS[$this->getRiskLevel($cotation)]];
     }
 
     /**
-     * Add a sheet after the others, set up to print on one page width
+     * Add a sheet after the others, from the translation keys of its title and of its description
      *
-     * @param  string    $titleKey       Translation key of the sheet title
-     * @param  string    $descriptionKey Translation key of the description printed in the contents of the summary
+     * @param  string    $titleKey       Translation key of the title
+     * @param  string    $descriptionKey Translation key of the description
      * @return Worksheet                 Sheet
      */
-    protected function addSheet(string $titleKey, string $descriptionKey): Worksheet
+    protected function addRiskSheet(string $titleKey, string $descriptionKey): Worksheet
     {
-        $sheet = $this->spreadsheet->createSheet();
-        $this->setSheetTitle($sheet, $titleKey);
-        $this->contents[] = ['sheet' => $sheet, 'description' => $descriptionKey, 'lines' => 0];
+        global $langs;
 
-        return $sheet;
-    }
-
-    /**
-     * Name a sheet and set up its printing: landscape, one page width, the company, the date and the page number
-     *
-     * @param  Worksheet $sheet    Sheet
-     * @param  string    $titleKey Translation key of the sheet title
-     * @return void
-     */
-    protected function setSheetTitle(Worksheet $sheet, string $titleKey): void
-    {
-        global $langs, $mysoc;
-
-        // A sheet name holds 31 characters at most, without []:*?/\
-        $title = dol_trunc(str_replace(['[', ']', ':', '*', '?', '/', '\\'], ' ', $langs->transnoentities($titleKey)), 31, 'right', 'UTF-8', 1);
-        $sheet->setTitle($title);
-
-        $sheet->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)->setPaperSize(PageSetup::PAPERSIZE_A4)->setFitToWidth(1)->setFitToHeight(0);
-        // A & starts a code in a header or a footer: a literal one is doubled
-        $sheet->getHeaderFooter()->setOddHeader('&L' . str_replace('&', '&&', $mysoc->name) . '&C&B' . str_replace('&', '&&', $title) . '&R' . dol_print_date($this->now, 'day'));
-        $sheet->getHeaderFooter()->setOddFooter('&R&P / &N');
-    }
-
-    /**
-     * Write a table: a head row, then one row per line, each column with its width and format
-     *
-     * A cell is a value, or an array with the value and the risk level colouring it. A text is always written
-     * as a text, so that a description starting like a formula is never computed.
-     *
-     * @param  Worksheet $sheet          Sheet
-     * @param  int       $headRow        Row of the head
-     * @param  array     $columns        Columns: label, width, format (text, longtext, int, decimal, percent, money, date, month), level
-     * @param  array     $lines          Lines of cells, in the order of the columns
-     * @param  int       $frozenColumns  Columns kept in view when scrolling to the right
-     * @return int                       Last row written
-     */
-    protected function writeTable(Worksheet $sheet, int $headRow, array $columns, array $lines, int $frozenColumns = 0): int
-    {
-        $numberFormats = [
-            'int'     => '0',
-            'decimal' => '0.0',
-            'percent' => '0%',
-            'money'   => '#,##0.00',
-            'date'    => $this->dateFormat,
-            'month'   => 'mmmm yyyy',
-        ];
-
-        $lastColumn = Coordinate::stringFromColumnIndex(count($columns));
-        foreach (array_values($columns) as $index => $column) {
-            $letter = Coordinate::stringFromColumnIndex($index + 1);
-            $sheet->setCellValueExplicit($letter . $headRow, $column['label'], DataType::TYPE_STRING);
-            $sheet->getColumnDimension($letter)->setWidth($column['width'] ?? 14);
-        }
-        $sheet->getStyle('A' . $headRow . ':' . $lastColumn . $headRow)->applyFromArray($this->getColourStyle(self::HEAD_COLOURS, true) + [
-            'alignment' => ['wrapText' => true, 'vertical' => Alignment::VERTICAL_CENTER],
-        ]);
-        // The head of a column counting a risk level takes the colour of the level, as the legend of a chart would
-        foreach (array_values($columns) as $index => $column) {
-            if (!empty($column['level'])) {
-                $sheet->getStyle(Coordinate::stringFromColumnIndex($index + 1) . $headRow)->applyFromArray($this->getColourStyle(self::LEVEL_COLOURS[$column['level']], true));
-            }
-        }
-
-        $row = $headRow;
-        foreach ($lines as $line) {
-            $row++;
-            foreach (array_values($line) as $index => $cell) {
-                $coordinate = Coordinate::stringFromColumnIndex($index + 1) . $row;
-                $level      = null;
-                if (is_array($cell)) {
-                    $level = $cell['level'] ?? null;
-                    $cell  = $cell['value'] ?? null;
-                }
-                if ($level !== null) {
-                    $sheet->getStyle($coordinate)->applyFromArray($this->getColourStyle(self::LEVEL_COLOURS[$level], true));
-                }
-                if ($cell === null || $cell === '') {
-                    continue;
-                }
-                if (is_int($cell) || is_float($cell)) {
-                    $sheet->setCellValueExplicit($coordinate, $cell, DataType::TYPE_NUMERIC);
-                } else {
-                    $sheet->setCellValueExplicit($coordinate, (string) $cell, DataType::TYPE_STRING);
-                }
-            }
-        }
-
-        if ($row > $headRow) {
-            foreach (array_values($columns) as $index => $column) {
-                $letter = Coordinate::stringFromColumnIndex($index + 1);
-                $style  = $sheet->getStyle($letter . ($headRow + 1) . ':' . $letter . $row);
-                $format = $column['format'] ?? 'text';
-                if (isset($numberFormats[$format])) {
-                    $style->getNumberFormat()->setFormatCode($numberFormats[$format]);
-                }
-                if ($format === 'longtext') {
-                    $style->getAlignment()->setWrapText(true);
-                }
-            }
-        }
-        $sheet->getStyle('A' . $headRow . ':' . $lastColumn . $row)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setRGB('D9D9D9');
-
-        $sheet->setAutoFilter('A' . $headRow . ':' . $lastColumn . $row);
-        $sheet->freezePane(Coordinate::stringFromColumnIndex($frozenColumns + 1) . ($headRow + 1));
-        $sheet->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd($headRow, $headRow);
-
-        $this->contents[count($this->contents) - 1]['lines'] = count($lines);
-
-        return $row;
+        return $this->addSheet($langs->transnoentities($titleKey), $langs->transnoentities($descriptionKey));
     }
 
     /**
@@ -604,6 +423,17 @@ class DigiboardRiskListExport
     }
 
     /**
+     * Cell of the reference of a risk, opening its card
+     *
+     * @param  array $record Record of the risk
+     * @return array         Cell
+     */
+    protected function getRiskRefCell(array $record): array
+    {
+        return ['value' => $record['risk']->ref, 'url' => $record['url']];
+    }
+
+    /**
      * Columns of the criteria of the advanced method
      *
      * @return array Columns
@@ -630,7 +460,7 @@ class DigiboardRiskListExport
     {
         global $langs;
 
-        $sheet   = $this->addSheet('RiskXlsxSheetRisks', 'RiskXlsxSheetRisksDesc');
+        $sheet   = $this->addRiskSheet('RiskXlsxSheetRisks', 'RiskXlsxSheetRisksDesc');
         $columns = array_merge($this->getLocationColumns(), [
             ['label' => $langs->transnoentities('RiskRef'), 'width' => 10],
             ['label' => $langs->transnoentities('DangerCategory'), 'width' => 22],
@@ -658,7 +488,7 @@ class DigiboardRiskListExport
         foreach ($records as $record) {
             $risk  = $record['risk'];
             $cells = array_merge($this->getLocationCells($record), [
-                $risk->ref,
+                $this->getRiskRefCell($record),
                 $record['category'],
                 $risk->description,
                 $record['cotation'],
@@ -710,7 +540,7 @@ class DigiboardRiskListExport
     {
         global $langs;
 
-        $sheet   = $this->addSheet('RiskXlsxSheetTasks', 'RiskXlsxSheetTasksDesc');
+        $sheet   = $this->addRiskSheet('RiskXlsxSheetTasks', 'RiskXlsxSheetTasksDesc');
         $columns = array_merge($this->getLocationColumns(), [
             ['label' => $langs->transnoentities('RiskRef'), 'width' => 10],
             ['label' => $langs->transnoentities('DangerCategory'), 'width' => 22],
@@ -742,11 +572,11 @@ class DigiboardRiskListExport
                 }
 
                 $lines[] = array_merge($this->getLocationCells($record), [
-                    $record['risk']->ref,
+                    $this->getRiskRefCell($record),
                     $record['category'],
                     $record['cotation'],
                     $this->getLevelCell($record['level']),
-                    $task->ref,
+                    ['value' => $task->ref, 'url' => $taskRecord['url']],
                     $task->label,
                     $taskRecord['author'],
                     $this->getExcelDate($task->dateo),
@@ -775,7 +605,7 @@ class DigiboardRiskListExport
     {
         global $langs;
 
-        $sheet   = $this->addSheet('RiskXlsxSheetAssessments', 'RiskXlsxSheetAssessmentsDesc');
+        $sheet   = $this->addRiskSheet('RiskXlsxSheetAssessments', 'RiskXlsxSheetAssessmentsDesc');
         $columns = array_merge($this->getLocationColumns(), [
             ['label' => $langs->transnoentities('RiskRef'), 'width' => 10],
             ['label' => $langs->transnoentities('DangerCategory'), 'width' => 22],
@@ -796,7 +626,7 @@ class DigiboardRiskListExport
                 $cotation = $assessment->cotation !== null ? (int) $assessment->cotation : null;
                 $criteria = $this->getCriteriaValues((string) $assessment->method, $assessment);
                 $cells    = array_merge($this->getLocationCells($record), [
-                    $record['risk']->ref,
+                    $this->getRiskRefCell($record),
                     $record['category'],
                     $assessment->ref,
                     $this->getAssessmentDate($assessment),
@@ -829,7 +659,7 @@ class DigiboardRiskListExport
     {
         global $langs;
 
-        $sheet   = $this->addSheet('RiskXlsxSheetProtections', 'RiskXlsxSheetProtectionsDesc');
+        $sheet   = $this->addRiskSheet('RiskXlsxSheetProtections', 'RiskXlsxSheetProtectionsDesc');
         $columns = array_merge($this->getLocationColumns(), [
             ['label' => $langs->transnoentities('Type'), 'width' => 10],
             ['label' => $langs->transnoentities('RiskXlsxSign'), 'width' => 34],
@@ -883,7 +713,7 @@ class DigiboardRiskListExport
 
         $columns = [['label' => $langs->transnoentities('Total'), 'width' => 9, 'format' => 'int']];
         foreach (array_keys(self::LEVEL_COLOURS) as $level) {
-            $columns[] = ['label' => $langs->transnoentities($this->riskLevelLabels[$level]), 'width' => 12, 'format' => 'int', 'level' => $level];
+            $columns[] = ['label' => $langs->transnoentities($this->riskLevelLabels[$level]), 'width' => 12, 'format' => 'int', 'colours' => self::LEVEL_COLOURS[$level]];
         }
 
         return array_merge($columns, [
@@ -939,10 +769,9 @@ class DigiboardRiskListExport
     {
         global $langs;
 
-        $recordsByEstablishment = [];
-        foreach ($records as $record) {
-            $recordsByEstablishment[$record['establishment']][] = $record;
-        }
+        $recordsByEstablishment = $this->groupBy($records, function (array $record): array {
+            return [$record['establishment']];
+        });
         uksort($recordsByEstablishment, 'strnatcasecmp');
 
         $lines = [];
@@ -950,7 +779,7 @@ class DigiboardRiskListExport
             $lines[] = array_merge([(string) $establishment], $this->getStatsCells($establishmentRecords));
         }
 
-        $sheet = $this->addSheet('RiskXlsxSheetEstablishments', 'RiskXlsxSheetEstablishmentsDesc');
+        $sheet = $this->addRiskSheet('RiskXlsxSheetEstablishments', 'RiskXlsxSheetEstablishmentsDesc');
         $this->writeTable($sheet, 1, array_merge([['label' => $langs->transnoentities('Establishment'), 'width' => 30]], $this->getStatsColumns()), $lines, 1);
     }
 
@@ -970,7 +799,7 @@ class DigiboardRiskListExport
             $lines[] = array_merge($this->getLocationCells($elementRecords[0]), $this->getStatsCells($elementRecords), [count($protectionsByElement[$elementId] ?? [])]);
         }
 
-        $sheet = $this->addSheet('RiskXlsxSheetElements', 'RiskXlsxSheetElementsDesc');
+        $sheet = $this->addRiskSheet('RiskXlsxSheetElements', 'RiskXlsxSheetElementsDesc');
         $this->writeTable($sheet, 1, array_merge($this->getLocationColumns(), $this->getStatsColumns(), [
             ['label' => $langs->transnoentities('RiskXlsxProtectionsNumber'), 'width' => 11, 'format' => 'int'],
         ]), $lines, 3);
@@ -986,10 +815,9 @@ class DigiboardRiskListExport
     {
         global $langs;
 
-        $recordsByCategory = [];
-        foreach ($records as $record) {
-            $recordsByCategory[$record['category']][] = $record;
-        }
+        $recordsByCategory = $this->groupBy($records, function (array $record): array {
+            return [$record['category']];
+        });
         uksort($recordsByCategory, 'strnatcasecmp');
 
         $lines = [];
@@ -997,7 +825,7 @@ class DigiboardRiskListExport
             $lines[] = array_merge([(string) $category], $this->getStatsCells($categoryRecords));
         }
 
-        $sheet = $this->addSheet('RiskXlsxSheetCategories', 'RiskXlsxSheetCategoriesDesc');
+        $sheet = $this->addRiskSheet('RiskXlsxSheetCategories', 'RiskXlsxSheetCategoriesDesc');
         $this->writeTable($sheet, 1, array_merge([['label' => $langs->transnoentities('DangerCategory'), 'width' => 46]], $this->getStatsColumns()), $lines, 1);
     }
 
@@ -1038,17 +866,15 @@ class DigiboardRiskListExport
                 if (!isset($maxByCategory[$position])) {
                     $cells[] = null;
                 } else {
-                    $cotation = $maxByCategory[$position] >= 0 ? $maxByCategory[$position] : null;
-                    $cells[]  = ['value' => $cotation, 'level' => $this->getRiskLevel($cotation)];
+                    $cells[] = $this->getCotationCell($maxByCategory[$position] >= 0 ? $maxByCategory[$position] : null);
                 }
             }
-            $elementMax = !empty($maxByCategory) && max($maxByCategory) >= 0 ? max($maxByCategory) : null;
-            $cells[]    = ['value' => $elementMax, 'level' => $this->getRiskLevel($elementMax)];
+            $cells[] = $this->getCotationCell(!empty($maxByCategory) && max($maxByCategory) >= 0 ? max($maxByCategory) : null);
 
             $lines[] = $cells;
         }
 
-        $sheet   = $this->addSheet('RiskXlsxSheetMap', 'RiskXlsxSheetMapDesc');
+        $sheet   = $this->addRiskSheet('RiskXlsxSheetMap', 'RiskXlsxSheetMapDesc');
         $lastRow = $this->writeTable($sheet, 1, $columns, $lines, 3);
 
         // Category names upwards, so that the matrix stays narrow
@@ -1093,13 +919,13 @@ class DigiboardRiskListExport
             }
         }
 
-        $sheet = $this->addSheet('RiskXlsxSheetCriteria', 'RiskXlsxSheetCriteriaDesc');
+        $sheet = $this->addRiskSheet('RiskXlsxSheetCriteria', 'RiskXlsxSheetCriteriaDesc');
         $this->writeTable($sheet, 1, [
             ['label' => $langs->transnoentities('RiskXlsxCriterion'), 'width' => 16],
             ['label' => $langs->transnoentities('RiskXlsxCriterionLevel'), 'width' => 8, 'format' => 'int'],
             ['label' => $langs->transnoentities('Label'), 'width' => 60, 'format' => 'longtext'],
             ['label' => $langs->transnoentities('RiskXlsxRisksNumber'), 'width' => 12, 'format' => 'int'],
-            ['label' => $langs->transnoentities('RiskXlsxShare'), 'width' => 10, 'format' => 'percent'],
+            ['label' => $langs->transnoentities('XlsxShare'), 'width' => 10, 'format' => 'percent'],
         ], $lines, 1);
     }
 
@@ -1116,7 +942,7 @@ class DigiboardRiskListExport
         $months = [];
         foreach ($records as $record) {
             foreach ($record['tasks'] as $taskRecord) {
-                $month = !empty($taskRecord['dueDate']) ? dol_print_date($taskRecord['dueDate'], '%Y-%m') : '';
+                $month = $this->getMonthKey($taskRecord['dueDate']);
                 if (!isset($months[$month])) {
                     $months[$month] = ['due' => 0, 'done' => 0, 'overdue' => 0];
                 }
@@ -1135,16 +961,11 @@ class DigiboardRiskListExport
 
         $lines = [];
         foreach ($months as $month => $count) {
-            if ($month === '') {
-                $monthCell = $langs->transnoentities('RiskXlsxNoDueDate');
-            } else {
-                $monthParts = array_map('intval', explode('-', (string) $month));
-                $monthCell  = ExcelDate::formattedPHPToExcel($monthParts[0], $monthParts[1], 1);
-            }
-            $lines[] = [$monthCell, $count['due'], $count['done'], $count['overdue'], $count['due'] - $count['done']];
+            $monthCell = $month === '' ? $langs->transnoentities('RiskXlsxNoDueDate') : $this->getMonthExcelDate((string) $month);
+            $lines[]   = [$monthCell, $count['due'], $count['done'], $count['overdue'], $count['due'] - $count['done']];
         }
 
-        $sheet = $this->addSheet('RiskXlsxSheetSchedule', 'RiskXlsxSheetScheduleDesc');
+        $sheet = $this->addRiskSheet('RiskXlsxSheetSchedule', 'RiskXlsxSheetScheduleDesc');
         $this->writeTable($sheet, 1, [
             ['label' => $langs->transnoentities('Month'), 'width' => 18, 'format' => 'month'],
             ['label' => $langs->transnoentities('RiskXlsxActionsDue'), 'width' => 12, 'format' => 'int'],
@@ -1155,57 +976,19 @@ class DigiboardRiskListExport
     }
 
     /**
-     * Write the title of a section of the summary, across its four columns
-     *
-     * @param  Worksheet $sheet Sheet
-     * @param  int       $row   Row
-     * @param  string    $label Title
-     * @return void
-     */
-    protected function writeSummarySection(Worksheet $sheet, int $row, string $label): void
-    {
-        $sheet->setCellValueExplicit('A' . $row, $label, DataType::TYPE_STRING);
-        $sheet->mergeCells('A' . $row . ':D' . $row);
-        $sheet->getStyle('A' . $row . ':D' . $row)->applyFromArray($this->getColourStyle(self::HEAD_COLOURS, true));
-    }
-
-    /**
      * Summary: what was exported, the key figures, the risk levels and the contents of the workbook
      *
-     * @param  Worksheet $sheet                Sheet, the first of the workbook
-     * @param  array     $records              Records of the risks
-     * @param  array     $protectionsByElement Protection signs, by groupment or work unit id
+     * @param  array $records              Records of the risks
+     * @param  array $protectionsByElement Protection signs, by groupment or work unit id
      * @return void
      */
-    protected function fillSummarySheet(Worksheet $sheet, array $records, array $protectionsByElement): void
+    protected function writeSummary(array $records, array $protectionsByElement): void
     {
-        global $langs, $mysoc, $user;
+        global $langs;
 
-        $this->setSheetTitle($sheet, 'RiskXlsxSheetSummary');
-        $sheet->getPageSetup()->setFitToHeight(1);
-        $sheet->getColumnDimension('A')->setWidth(42);
-        $sheet->getColumnDimension('B')->setWidth(16);
-        $sheet->getColumnDimension('C')->setWidth(12);
-        $sheet->getColumnDimension('D')->setWidth(80);
+        $row = $this->writeSummaryHead($langs->transnoentities('SimplifiedRiskList'), $langs->transnoentities($this->riskType === 'riskenvironmental' ? 'RiskTypeEnvironmental' : 'RiskTypeProfessional'));
+        $row = $this->writeSummaryFilters($row);
 
-        $sheet->setCellValueExplicit('A1', $langs->transnoentities('SimplifiedRiskList') . ' - ' . $langs->transnoentities($this->riskType === 'riskenvironmental' ? 'RiskTypeEnvironmental' : 'RiskTypeProfessional'), DataType::TYPE_STRING);
-        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16)->getColor()->setRGB(self::HEAD_COLOURS[0]);
-        $sheet->setCellValueExplicit('A2', (string) $mysoc->name, DataType::TYPE_STRING);
-        $sheet->getStyle('A2')->getFont()->setBold(true)->setSize(12);
-        $sheet->setCellValueExplicit('A3', $langs->transnoentities('RiskXlsxExportedOn', dol_print_date($this->now, 'dayhour'), $user->getFullName($langs)), DataType::TYPE_STRING);
-        $sheet->getStyle('A3')->getFont()->setItalic(true)->getColor()->setRGB('64748B');
-
-        // Filters of the list
-        $row = 5;
-        $this->writeSummarySection($sheet, $row, $langs->transnoentities('RiskXlsxFilters'));
-        foreach ($this->filters as $label => $value) {
-            $row++;
-            $sheet->setCellValueExplicit('A' . $row, (string) $label, DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('B' . $row, (string) $value, DataType::TYPE_STRING);
-            $sheet->mergeCells('B' . $row . ':D' . $row);
-        }
-
-        // Key figures
         $levels      = array_fill_keys(array_keys(self::LEVEL_COLOURS), 0);
         $cotations   = [];
         $methods     = ['standard' => 0, 'advanced' => 0];
@@ -1242,89 +1025,42 @@ class DigiboardRiskListExport
         $nbRisks = count($records);
 
         // Each figure with its share of the risks, or of the actions, when it is a part of them
-        $keyFigures = [
-            ['RiskXlsxRisksNumber', $nbRisks, null],
-            ['RiskXlsxAssessedRisks', count($cotations), $nbRisks],
-            ['RiskXlsxStandardAssessedRisks', $methods['standard'], $nbRisks],
-            ['RiskXlsxAdvancedAssessedRisks', $methods['advanced'], $nbRisks],
-            ['RiskXlsxAverageCotation', !empty($cotations) ? round(array_sum($cotations) / count($cotations), 1) : null, null],
-            ['RiskXlsxMaxCotation', !empty($cotations) ? max($cotations) : null, null],
-            ['RiskXlsxEstablishmentsNumber', count($entityIds), null],
-            ['RiskXlsxElementsNumber', count($elementIds), null],
-            ['RiskXlsxProtectionsNumber', $nbProtections, null],
-            ['ActionsCount', $nbActions, null],
-            ['ActionsCompletedCount', $taskCounts['done'], $nbActions],
-            ['RiskXlsxActionsInProgress', $taskCounts['inProgress'], $nbActions],
-            ['RiskXlsxActionsToDo', $taskCounts['toDo'], $nbActions],
-            ['RiskXlsxActionsOverdue', $taskCounts['overdue'], $nbActions],
-            ['RiskXlsxAverageProgress', $nbActions > 0 ? $progressSum / $nbActions / 100 : null, null],
-        ];
-        $row += 2;
-        $this->writeSummarySection($sheet, $row, $langs->transnoentities('RiskXlsxKeyFigures'));
-        foreach ($keyFigures as $keyFigure) {
-            $row++;
-            $sheet->setCellValueExplicit('A' . $row, $langs->transnoentities($keyFigure[0]), DataType::TYPE_STRING);
-            if ($keyFigure[1] !== null) {
-                $sheet->setCellValueExplicit('B' . $row, $keyFigure[1], DataType::TYPE_NUMERIC);
-            }
-            if ($keyFigure[0] === 'RiskXlsxAverageProgress') {
-                $sheet->getStyle('B' . $row)->getNumberFormat()->setFormatCode('0%');
-            } elseif ($keyFigure[0] === 'RiskXlsxAverageCotation') {
-                $sheet->getStyle('B' . $row)->getNumberFormat()->setFormatCode('0.0');
-            }
-            if (!empty($keyFigure[2])) {
-                $sheet->setCellValueExplicit('C' . $row, $keyFigure[1] / $keyFigure[2], DataType::TYPE_NUMERIC);
-                $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('0%');
-            }
-        }
+        $row = $this->writeSummaryKeyFigures($row, [
+            ['label' => $langs->transnoentities('RiskXlsxRisksNumber'), 'value' => $nbRisks],
+            ['label' => $langs->transnoentities('RiskXlsxAssessedRisks'), 'value' => count($cotations), 'total' => $nbRisks],
+            ['label' => $langs->transnoentities('RiskXlsxStandardAssessedRisks'), 'value' => $methods['standard'], 'total' => $nbRisks],
+            ['label' => $langs->transnoentities('RiskXlsxAdvancedAssessedRisks'), 'value' => $methods['advanced'], 'total' => $nbRisks],
+            ['label' => $langs->transnoentities('RiskXlsxAverageCotation'), 'value' => !empty($cotations) ? round(array_sum($cotations) / count($cotations), 1) : null, 'format' => 'decimal'],
+            ['label' => $langs->transnoentities('RiskXlsxMaxCotation'), 'value' => !empty($cotations) ? max($cotations) : null],
+            ['label' => $langs->transnoentities('RiskXlsxEstablishmentsNumber'), 'value' => count($entityIds)],
+            ['label' => $langs->transnoentities('RiskXlsxElementsNumber'), 'value' => count($elementIds)],
+            ['label' => $langs->transnoentities('RiskXlsxProtectionsNumber'), 'value' => $nbProtections],
+            ['label' => $langs->transnoentities('ActionsCount'), 'value' => $nbActions],
+            ['label' => $langs->transnoentities('ActionsCompletedCount'), 'value' => $taskCounts['done'], 'total' => $nbActions],
+            ['label' => $langs->transnoentities('RiskXlsxActionsInProgress'), 'value' => $taskCounts['inProgress'], 'total' => $nbActions],
+            ['label' => $langs->transnoentities('RiskXlsxActionsToDo'), 'value' => $taskCounts['toDo'], 'total' => $nbActions],
+            ['label' => $langs->transnoentities('RiskXlsxActionsOverdue'), 'value' => $taskCounts['overdue'], 'total' => $nbActions],
+            ['label' => $langs->transnoentities('RiskXlsxAverageProgress'), 'value' => $nbActions > 0 ? $progressSum / $nbActions / 100 : null, 'format' => 'percent'],
+        ]);
 
         // Risk levels, with the cotations they cover, ready for a chart
-        $row += 2;
-        $this->writeSummarySection($sheet, $row, $langs->transnoentities('RiskLevel'));
-        $row++;
-        $heads = ['RiskLevel', 'RiskXlsxRisksNumber', 'RiskXlsxShare', 'RiskCotation'];
-        foreach ($heads as $index => $head) {
-            $sheet->setCellValueExplicit(Coordinate::stringFromColumnIndex($index + 1) . $row, $langs->transnoentities($head), DataType::TYPE_STRING);
-        }
-        $sheet->getStyle('A' . $row . ':D' . $row)->getFont()->setBold(true);
-        $sheet->getStyle('B' . $row . ':C' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $levelLines  = [];
         $minCotation = 0;
         foreach (array_keys(self::LEVEL_COLOURS) as $level) {
-            $row++;
-            $sheet->setCellValueExplicit('A' . $row, $langs->transnoentities($this->riskLevelLabels[$level]), DataType::TYPE_STRING);
-            $sheet->getStyle('A' . $row)->applyFromArray($this->getColourStyle(self::LEVEL_COLOURS[$level], true));
-            $sheet->setCellValueExplicit('B' . $row, $levels[$level], DataType::TYPE_NUMERIC);
-            if ($nbRisks > 0) {
-                $sheet->setCellValueExplicit('C' . $row, $levels[$level] / $nbRisks, DataType::TYPE_NUMERIC);
-                $sheet->getStyle('C' . $row)->getNumberFormat()->setFormatCode('0%');
-            }
+            $range = '';
             if (isset($this->cotationLevelMax[$level])) {
-                $sheet->setCellValueExplicit('D' . $row, $minCotation . ' - ' . $this->cotationLevelMax[$level], DataType::TYPE_STRING);
+                $range       = $minCotation . ' - ' . $this->cotationLevelMax[$level];
                 $minCotation = $this->cotationLevelMax[$level] + 1;
             }
+            $levelLines[] = [$this->getLevelCell($level), $levels[$level], $nbRisks > 0 ? $levels[$level] / $nbRisks : null, $range];
         }
+        $row = $this->writeSummaryTable($row, $langs->transnoentities('RiskLevel'), [
+            $langs->transnoentities('RiskLevel'),
+            $langs->transnoentities('RiskXlsxRisksNumber'),
+            $langs->transnoentities('XlsxShare'),
+            $langs->transnoentities('RiskCotation'),
+        ], $levelLines, ['text', 'int', 'percent', 'text']);
 
-        // Contents, each sheet a link
-        $row += 2;
-        $this->writeSummarySection($sheet, $row, $langs->transnoentities('RiskXlsxContents'));
-        $row++;
-        $heads = ['RiskXlsxSheet', 'RiskXlsxLines', '', 'Description'];
-        foreach ($heads as $index => $head) {
-            if ($head !== '') {
-                $sheet->setCellValueExplicit(Coordinate::stringFromColumnIndex($index + 1) . $row, $langs->transnoentities($head), DataType::TYPE_STRING);
-            }
-        }
-        $sheet->getStyle('A' . $row . ':D' . $row)->getFont()->setBold(true);
-        $sheet->getStyle('B' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        foreach ($this->contents as $content) {
-            $row++;
-            $title = $content['sheet']->getTitle();
-            $sheet->setCellValueExplicit('A' . $row, $title, DataType::TYPE_STRING);
-            $sheet->getCell('A' . $row)->getHyperlink()->setUrl("sheet://'" . str_replace("'", "''", $title) . "'!A1");
-            $sheet->getStyle('A' . $row)->getFont()->setUnderline(true)->getColor()->setRGB('1D4ED8');
-            $sheet->setCellValueExplicit('B' . $row, $content['lines'], DataType::TYPE_NUMERIC);
-            $sheet->setCellValueExplicit('D' . $row, $langs->transnoentities($content['description']), DataType::TYPE_STRING);
-        }
-        $sheet->getStyle('D1:D' . $row)->getAlignment()->setWrapText(true)->setIndent(1);
+        $this->writeSummaryContents($row);
     }
 }
