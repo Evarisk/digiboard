@@ -1,0 +1,14 @@
+@use 'tokens' as *;
+
+/* DigiBoard modern theme: small shared pieces */
+
+#{$dgb-scope} {
+  /* Yes / no states of the remote instance table (digiboard_yes_no()) */
+  .digiboard-state-yes {
+    color: $dgb-success;
+  }
+
+  .digiboard-state-no {
+    color: $dgb-danger;
+  }
+}

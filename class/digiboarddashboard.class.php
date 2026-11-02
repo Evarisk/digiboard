@@ -210,15 +210,9 @@ class DigiboardDashboard
 
                 $percent = ($nbRiskByCotations[$i] > 0 && $totalRisks > 0) ? round($nbRiskByCotations[$i] * 100 / $totalRisks, 1) : 0;
 
-                $arrayDigiRiskStatsList[$entityID][$riskAssessmentCotation[$i]]['value'] = "
-                    <div class='flex flex-col justify-center' style='padding-top: 10px;'>
-                        <div style='height: 1em'>$nbRiskByCotations[$i]</div>
-                        <div style='font-size: 0.75em; height: 0.75em;'>($percent%)</div>
-                    </div>
-                ";
-
-                $arrayDigiRiskStatsList[$entityID][$riskAssessmentCotation[$i]]['morecss']  = 'risk-evaluation-cotation';
-                $arrayDigiRiskStatsList[$entityID][$riskAssessmentCotation[$i]]['moreAttr'] = 'data-scale=' . $i . ' style="line-height: 0; border-radius: 0;"';
+                // A chip in the colour of the cotation (css/scss/theme/_dashboard.scss), the cell itself stays white
+                $arrayDigiRiskStatsList[$entityID][$riskAssessmentCotation[$i]]['value']   = '<span class="digiboard-cotation-chip" data-scale="' . $i . '"><span class="digiboard-cotation-count">' . $nbRiskByCotations[$i] . '</span><span class="digiboard-cotation-percent">(' . $percent . '%)</span></span>';
+                $arrayDigiRiskStatsList[$entityID][$riskAssessmentCotation[$i]]['morecss'] = 'digiboard-stats-cotation';
 
                 $total[$i] += $nbRiskByCotations[$i];
             }
@@ -250,28 +244,26 @@ class DigiboardDashboard
             }
         }
 
-        $totalValue = ['Site' => ['value' => $langs->transnoentities('Total'), 'morecss' => 'bold'], 'Siret' => ['value' => ''], 'RiskAssessmentDocument' => ['value' => ''], 'NextGenerateDate' => ['value' => ''], 'DelayGenerateDate' => ['value' => ''], 'NbEmployees' => ['value' => ''], 'NbEmployeesInvolved' => ['value' => '']];
+        $totalValue = ['Site' => ['value' => $langs->transnoentities('Total'), 'morecss' => 'left bold'], 'Siret' => ['value' => ''], 'RiskAssessmentDocument' => ['value' => ''], 'NextGenerateDate' => ['value' => ''], 'DelayGenerateDate' => ['value' => ''], 'NbEmployees' => ['value' => ''], 'NbEmployeesInvolved' => ['value' => '']];
 
         $totalValue['NbEmployees']['value'] = $total['nbEmployees'];
 
         for ($i = 1; $i <= 4; $i++) {
             $percent = ($total[$i] > 0) ? round($total[$i] * 100 / $total['totalRisks'], 1) : 0;
 
-            $totalValue[$riskAssessmentCotation[$i]]['value'] = "
-                  <div class='flex flex-col justify-center' style='padding-top: 10px;'>
-                        <div style='height: 1em'>$total[$i]</div>
-                        <div style='font-size: 0.75em; height: 0.75em;'>($percent%)</div>
-                  </div>
-            ";
-
-            $totalValue[$riskAssessmentCotation[$i]]['morecss']  = 'risk-evaluation-cotation';
-            $totalValue[$riskAssessmentCotation[$i]]['moreAttr'] = 'data-scale=' . $i . ' style="line-height: 0; border-radius: 0;"';
+            $totalValue[$riskAssessmentCotation[$i]]['value']   = '<span class="digiboard-cotation-chip" data-scale="' . $i . '"><span class="digiboard-cotation-count">' . $total[$i] . '</span><span class="digiboard-cotation-percent">(' . $percent . '%)</span></span>';
+            $totalValue[$riskAssessmentCotation[$i]]['morecss'] = 'digiboard-stats-cotation';
         }
 
         $totalValue['TotalRisk']['value'] = $total['totalRisks'];
 
         if (getDolGlobalInt('DIGIBOARD_DIGIRISIK_STATS_LOAD_ACCIDENT')) {
             $totalValue = array_merge($totalValue, ['NbPresquAccidents' => ['value' => ''], 'NbAccidents' => ['value' => ''], 'NbAccidentsByEmployees' => ['value' => ''], 'NbAccidentInvestigations' => ['value' => ''], 'WorkStopDays' => ['value' => ''], 'FrequencyIndex' => ['value' => ''], 'FrequencyRate' => ['value' => ''], 'GravityRate' => ['value' => '']]);
+        }
+
+        // The dashboard prints every row alike: the cells of the total carry the class that sets the row apart
+        foreach ($totalValue as $key => $cell) {
+            $totalValue[$key]['morecss'] = trim(($cell['morecss'] ?? '') . ' digiboard-stats-total');
         }
 
         $arrayDigiRiskStatsList['Total'] = $totalValue;
