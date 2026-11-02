@@ -76,6 +76,9 @@ if (empty($conf->digiriskdolibarr->enabled)) {
     exit;
 }
 
+// The Excel export is written by the base export of Saturne, from the version that ships it on
+$xlsxExportAvailable = file_exists(dol_buildpath('/saturne/class/saturnexlsxexport.class.php'));
+
 // Get parameters
 $action       = GETPOST('action', 'aZ09');
 $filterEntity = GETPOSTINT('filter_entity');
@@ -442,18 +445,22 @@ if ($resCounts) {
     $db->free($resCounts);
 }
 
+// Date of an assessment the way Digirisk prints it: the date typed in the assessment when the setup shows it,
+// the date the assessment was made otherwise
+$assessmentDateSql = getDolGlobalInt('DIGIRISKDOLIBARR_SHOW_RISKASSESSMENT_DATE') ? 'COALESCE(ra.date_riskassessment, ra.date_creation)' : 'ra.date_creation';
+
 // Build Main Risks Query
 $sql  = "SELECT r.rowid, r.ref, r.description, r.category, r.status, r.type, r.entity,";
 $sql .= " e.rowid as element_id, e.ref as element_ref, e.label as element_label, e.element_type,";
 $sql .= " p.rowid as parent_id, p.ref as parent_ref, p.label as parent_label,";
-$sql .= " ra.rowid as ra_id, ra.ref as ra_ref, ra.cotation, ra.date_riskassessment, ra.comment as ra_comment,";
+$sql .= " ra.rowid as ra_id, ra.ref as ra_ref, ra.cotation, " . $assessmentDateSql . " as ra_date, ra.comment as ra_comment,";
 $sql .= " ra.method as ra_method, ra.gravite as ra_gravite, ra.exposition as ra_exposition, ra.occurrence as ra_occurrence, ra.formation as ra_formation, ra.protection as ra_protection,";
 $sql .= " u.rowid as ra_user_id, u.firstname as ra_user_firstname, u.lastname as ra_user_lastname";
 $sql .= " FROM " . MAIN_DB_PREFIX . "digiriskdolibarr_risk r";
 $sql .= " INNER JOIN " . MAIN_DB_PREFIX . "digiriskdolibarr_digiriskelement e ON e.rowid = r.fk_element";
 $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "digiriskdolibarr_digiriskelement p ON p.rowid = e.fk_parent";
 $sql .= " LEFT JOIN (";
-$sql .= "   SELECT ra1.rowid, ra1.fk_risk, ra1.ref, ra1.cotation, ra1.date_riskassessment, ra1.comment, ra1.fk_user_creat,";
+$sql .= "   SELECT ra1.rowid, ra1.fk_risk, ra1.ref, ra1.cotation, ra1.date_riskassessment, ra1.date_creation, ra1.comment, ra1.fk_user_creat,";
 $sql .= "   ra1.method, ra1.gravite, ra1.exposition, ra1.occurrence, ra1.formation, ra1.protection";
 $sql .= "   FROM " . MAIN_DB_PREFIX . "digiriskdolibarr_riskassessment ra1";
 $sql .= "   INNER JOIN (";
@@ -514,7 +521,7 @@ if ($sortfield === 'ref') {
 } elseif ($sortfield === 'element') {
     $orderClause .= "e.label " . $sortorder;
 } elseif ($sortfield === 'date') {
-    $orderClause .= "ra.date_riskassessment " . $sortorder;
+    $orderClause .= $assessmentDateSql . " " . $sortorder;
 } else {
     // Default: cotation DESC, then ref ASC
     $orderClause .= "CASE WHEN ra.cotation IS NULL THEN -1 ELSE ra.cotation END " . $sortorder . ", r.ref ASC";
@@ -524,7 +531,7 @@ if ($sortfield === 'ref') {
 $fetchTasksByRisk = function (array $riskIds) use ($db) {
     $tasksByRisk = [];
     foreach (array_chunk($riskIds, 500) as $chunkIds) {
-        $sqlTasks  = "SELECT t.rowid, t.ref, t.label, t.progress, t.dateo, t.datee, te.fk_risk,";
+        $sqlTasks  = "SELECT t.rowid, t.ref, t.label, t.progress, t.dateo, t.datee, t.planned_workload, t.budget_amount, te.fk_risk,";
         $sqlTasks .= " u.rowid as user_id, u.firstname, u.lastname";
         $sqlTasks .= " FROM " . MAIN_DB_PREFIX . "projet_task t";
         $sqlTasks .= " JOIN " . MAIN_DB_PREFIX . "projet_task_extrafields te ON te.fk_object = t.rowid";
@@ -573,8 +580,8 @@ $getProtectionLabel = function ($protection) use ($protectionCategories) {
     return $protectionCategories[(int) $protection->category]['name'] . ($description !== '' ? ' : ' . $description : '');
 };
 
-// CSV export of the whole filtered list (no pagination), one line per risk carrying its whole action plan
-if ($action == 'export_csv') {
+// Exports of the whole filtered list (no pagination), in the order of the list
+if ($action == 'export_csv' || $action == 'export_xlsx') {
     $resExport = $db->query($sql . $orderClause);
     if (!$resExport) {
         dol_print_error($db);
@@ -590,6 +597,33 @@ if ($action == 'export_csv') {
         return (int) $risk->element_id;
     }, array_values($exportRisks)));
 
+    // Excel export: the same risks under several views, one sheet each, written by the base export of Saturne
+    if ($action == 'export_xlsx' && $xlsxExportAvailable) {
+        require_once __DIR__ . '/../class/digiboardrisklistexport.class.php';
+
+        $export                       = new DigiboardRiskListExport($db);
+        $export->riskType             = $riskType;
+        $export->entities             = $entities;
+        $export->dangerCategories     = $dangerCategories;
+        $export->protectionCategories = $protectionCategories;
+        $export->cotationCriteria     = $cotationCriteria;
+        $export->cotationLevelMax     = $cotationLevelMax;
+        $export->riskLevelLabels      = $riskLevelLabels;
+        $export->filters              = [
+            $langs->transnoentities('RiskLevel')                => $langs->transnoentities($riskLevelLabels[$cotationFilter] ?? 'AllRisks'),
+            $langs->transnoentities('FilterByEstablishment')    => $filterEntity > 0 ? $entities[$filterEntity] : $langs->transnoentities('AllEstablishments'),
+            $langs->transnoentities('FilterByGroupmentAndUnit') => isset($elements[$elementId]) ? $elements[$elementId]->ref . ' - ' . $elements[$elementId]->label : $langs->transnoentities('AllGroupmentsAndUnits'),
+            $langs->transnoentities('FilterByCategory')         => $categoryId >= 0 ? $dangerCategories[$categoryId]['name'] : $langs->transnoentities('AllCategories'),
+            $langs->transnoentities('XlsxSearch')               => $search,
+        ];
+
+        $fileName = str_replace(' ', '_', dol_sanitizeFileName($langs->transnoentities($riskType === 'riskenvironmental' ? 'RiskTypeEnvironmental' : 'RiskTypeProfessional')));
+        $export->export($exportRisks, $exportTasks, $exportProtections, $fileName . '_' . dol_print_date(dol_now(), 'dayhourlog'));
+        $db->close();
+        exit;
+    }
+
+    // CSV export, one line per risk carrying its whole action plan.
     // Every cell is enclosed, and a text starting like a formula is neutralized for spreadsheet software
     $separator = getDolGlobalString('EXPORT_CSV_SEPARATOR_TO_USE', ';');
     $csvLine   = function (array $cells) use ($separator) {
@@ -644,7 +678,7 @@ if ($action == 'export_csv') {
         foreach ($cotationCriteria as $column => $criterion) {
             $cells[] = $riskCriteria[$column] ?? '';
         }
-        $cells[] = !empty($r->date_riskassessment) ? dol_print_date($db->jdate($r->date_riskassessment), 'day') : '';
+        $cells[] = !empty($r->ra_date) ? dol_print_date($db->jdate($r->ra_date), 'day') : '';
         $cells[] = trim($r->ra_user_firstname . ' ' . $r->ra_user_lastname);
         $cells[] = $r->ra_comment;
 
@@ -824,8 +858,10 @@ print '</form>';
 
 // Standard Dolibarr List Barre (Pagination & Counts)
 $param = '&risk_type=' . urlencode($riskType) . '&cotation_filter=' . urlencode($cotationFilter) . ($filterEntity > 0 ? '&filter_entity=' . $filterEntity : '') . ($elementId > 0 ? '&element_id=' . $elementId : '') . ($categoryId >= 0 ? '&category_id=' . $categoryId : '') . (!empty($search) ? '&search=' . urlencode($search) : '');
-$exportUrl     = $_SERVER['PHP_SELF'] . '?action=export_csv&token=' . newToken() . $param . '&sortfield=' . urlencode($sortfield) . '&sortorder=' . urlencode($sortorder);
-$morehtmlright = dolGetButtonTitle($langs->trans('ExportCSV'), $langs->trans('ExportRiskListCSVHelp'), 'fa fa-file-csv', $exportUrl);
+$exportUrl      = $_SERVER['PHP_SELF'] . '?action=export_csv&token=' . newToken() . $param . '&sortfield=' . urlencode($sortfield) . '&sortorder=' . urlencode($sortorder);
+$exportXlsxUrl  = $_SERVER['PHP_SELF'] . '?action=export_xlsx&token=' . newToken() . $param . '&sortfield=' . urlencode($sortfield) . '&sortorder=' . urlencode($sortorder);
+$morehtmlright  = $xlsxExportAvailable ? dolGetButtonTitle($langs->trans('ExportXLSX'), $langs->trans('ExportRiskListXLSXHelp'), 'fa fa-file-excel', $exportXlsxUrl) : '';
+$morehtmlright .= dolGetButtonTitle($langs->trans('ExportCSV'), $langs->trans('ExportRiskListCSVHelp'), 'fa fa-file-csv', $exportUrl);
 print_barre_liste('', $page, $_SERVER['PHP_SELF'], $param, $sortfield, $sortorder, '', count($risks), $totalRows, 'fa-exclamation-triangle', 0, $morehtmlright, '', $limit, 0, 0, 1);
 
 // Notion Table
@@ -952,8 +988,8 @@ if (empty($risks)) {
                 $evaluatorName = trim($r->ra_user_firstname . ' ' . $r->ra_user_lastname);
                 print '<i class="fas fa-user-check"></i> ' . dol_escape_htmltag($evaluatorName) . ' &bull; ';
             }
-            if (!empty($r->date_riskassessment)) {
-                print dol_print_date($db->jdate($r->date_riskassessment), 'day');
+            if (!empty($r->ra_date)) {
+                print dol_print_date($db->jdate($r->ra_date), 'day');
             }
             print '</div>';
             if (!empty($r->ra_comment)) {
