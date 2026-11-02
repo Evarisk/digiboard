@@ -76,6 +76,9 @@ if (empty($conf->digiriskdolibarr->enabled)) {
     exit;
 }
 
+// The Excel export is written by the base export of Saturne, from the version that ships it on
+$xlsxExportAvailable = file_exists(dol_buildpath('/saturne/class/saturnexlsxexport.class.php'));
+
 // Get parameters
 $action       = GETPOST('action', 'aZ09');
 $filterEntity = GETPOSTINT('filter_entity');
@@ -594,8 +597,8 @@ if ($action == 'export_csv' || $action == 'export_xlsx') {
         return (int) $risk->element_id;
     }, array_values($exportRisks)));
 
-    // Excel export: the same risks under several views, one sheet each
-    if ($action == 'export_xlsx') {
+    // Excel export: the same risks under several views, one sheet each, written by the base export of Saturne
+    if ($action == 'export_xlsx' && $xlsxExportAvailable) {
         require_once __DIR__ . '/../class/digiboardrisklistexport.class.php';
 
         $export                       = new DigiboardRiskListExport($db);
@@ -611,11 +614,11 @@ if ($action == 'export_csv' || $action == 'export_xlsx') {
             $langs->transnoentities('FilterByEstablishment')    => $filterEntity > 0 ? $entities[$filterEntity] : $langs->transnoentities('AllEstablishments'),
             $langs->transnoentities('FilterByGroupmentAndUnit') => isset($elements[$elementId]) ? $elements[$elementId]->ref . ' - ' . $elements[$elementId]->label : $langs->transnoentities('AllGroupmentsAndUnits'),
             $langs->transnoentities('FilterByCategory')         => $categoryId >= 0 ? $dangerCategories[$categoryId]['name'] : $langs->transnoentities('AllCategories'),
-            $langs->transnoentities('RiskXlsxSearch')           => $search,
+            $langs->transnoentities('XlsxSearch')               => $search,
         ];
 
         $fileName = str_replace(' ', '_', dol_sanitizeFileName($langs->transnoentities($riskType === 'riskenvironmental' ? 'RiskTypeEnvironmental' : 'RiskTypeProfessional')));
-        $export->send($exportRisks, $exportTasks, $exportProtections, $fileName . '_' . dol_print_date(dol_now(), 'dayhourlog'));
+        $export->export($exportRisks, $exportTasks, $exportProtections, $fileName . '_' . dol_print_date(dol_now(), 'dayhourlog'));
         $db->close();
         exit;
     }
@@ -1247,7 +1250,7 @@ print '</form>';
 $param = '&risk_type=' . urlencode($riskType) . '&cotation_filter=' . urlencode($cotationFilter) . ($filterEntity > 0 ? '&filter_entity=' . $filterEntity : '') . ($elementId > 0 ? '&element_id=' . $elementId : '') . ($categoryId >= 0 ? '&category_id=' . $categoryId : '') . (!empty($search) ? '&search=' . urlencode($search) : '');
 $exportUrl      = $_SERVER['PHP_SELF'] . '?action=export_csv&token=' . newToken() . $param . '&sortfield=' . urlencode($sortfield) . '&sortorder=' . urlencode($sortorder);
 $exportXlsxUrl  = $_SERVER['PHP_SELF'] . '?action=export_xlsx&token=' . newToken() . $param . '&sortfield=' . urlencode($sortfield) . '&sortorder=' . urlencode($sortorder);
-$morehtmlright  = dolGetButtonTitle($langs->trans('ExportXLSX'), $langs->trans('ExportRiskListXLSXHelp'), 'fa fa-file-excel', $exportXlsxUrl);
+$morehtmlright  = $xlsxExportAvailable ? dolGetButtonTitle($langs->trans('ExportXLSX'), $langs->trans('ExportRiskListXLSXHelp'), 'fa fa-file-excel', $exportXlsxUrl) : '';
 $morehtmlright .= dolGetButtonTitle($langs->trans('ExportCSV'), $langs->trans('ExportRiskListCSVHelp'), 'fa fa-file-csv', $exportUrl);
 print_barre_liste('', $page, $_SERVER['PHP_SELF'], $param, $sortfield, $sortorder, '', count($risks), $totalRows, 'fa-exclamation-triangle', 0, $morehtmlright, '', $limit, 0, 0, 1);
 
