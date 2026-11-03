@@ -1,0 +1,92 @@
+/* DigiBoard modern theme: design tokens.
+
+   The generic restyle of the back office (titles, tabs, lists, forms, buttons, dashboards, modals) is the shared
+   theme of Saturne. saturne_header() puts its saturne-theme class on the logged-in pages only: the public pages
+   and the PWAs, which have their own design, never get it. The DigiBoard components aim at the same scope.
+
+   This stylesheet is compiled apart from Saturne: the colours, radii and shadows are read from the CSS custom
+   properties the shared theme exposes on that scope, so that both stay in step. */
+$dgb-scope: 'body#mainbody.saturne-theme';
+
+$dgb-bg: var(--saturne-bg);
+$dgb-surface: var(--saturne-surface);
+$dgb-surface-soft: var(--saturne-surface-soft);
+$dgb-border: var(--saturne-border);
+$dgb-border-soft: var(--saturne-border-soft);
+$dgb-border-strong: var(--saturne-border-strong);
+$dgb-text: var(--saturne-text);
+$dgb-text-soft: var(--saturne-text-soft);
+$dgb-muted: var(--saturne-muted);
+$dgb-faint: var(--saturne-faint);
+
+$dgb-primary: var(--saturne-primary);
+$dgb-primary-strong: var(--saturne-primary-strong);
+$dgb-primary-soft: var(--saturne-primary-soft);
+$dgb-success: var(--saturne-success);
+$dgb-success-soft: var(--saturne-success-soft);
+$dgb-warning: var(--saturne-warning);
+$dgb-warning-soft: var(--saturne-warning-soft);
+$dgb-danger: var(--saturne-danger);
+$dgb-danger-soft: var(--saturne-danger-soft);
+
+$dgb-radius-lg: var(--saturne-radius-lg);
+$dgb-radius: var(--saturne-radius);
+$dgb-radius-sm: var(--saturne-radius-sm);
+$dgb-radius-pill: var(--saturne-radius-pill);
+
+$dgb-shadow-sm: var(--saturne-shadow-sm);
+$dgb-shadow: var(--saturne-shadow);
+$dgb-ring: var(--saturne-ring);
+
+$dgb-transition: 0.15s ease;
+
+/* Text and border of the tinted pills, darker than their tint so that they stay readable
+   (same recipe as the status badges of the shared theme) */
+$dgb-warning-text: #a16207;
+$dgb-warning-line: rgba(233, 173, 79, 0.45);
+$dgb-success-text: #15803d;
+$dgb-success-line: rgba(22, 163, 74, 0.3);
+$dgb-danger-text: #b91c1c;
+$dgb-danger-line: rgba(224, 83, 83, 0.3);
+$dgb-primary-line: rgba(13, 138, 255, 0.25);
+
+/* Cotation colours of Digirisk (grey, yellow, red, black): they keep their meaning, only the shape changes */
+$dgb-cotation-low: #ececec;
+$dgb-cotation-low-text: rgba(0, 0, 0, 0.8);
+$dgb-cotation-plan: #e9ad4f;
+$dgb-cotation-treat: #e05353;
+$dgb-cotation-unacceptable: #2b2b2b;
+
+/* Uppercase micro label, used for table headers */
+@mixin dgb-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: $dgb-muted;
+}
+
+/* White rounded surface */
+@mixin dgb-card {
+  background: $dgb-surface;
+  border: 1px solid $dgb-border;
+  border-radius: $dgb-radius-lg;
+  box-shadow: $dgb-shadow-sm;
+}
+
+/* Background and text of a cotation level, 1 to 4 */
+@mixin dgb-cotation-colours($level) {
+  @if $level == 1 {
+    background: $dgb-cotation-low;
+    color: $dgb-cotation-low-text;
+  } @else if $level == 2 {
+    background: $dgb-cotation-plan;
+    color: #ffffff;
+  } @else if $level == 3 {
+    background: $dgb-cotation-treat;
+    color: #ffffff;
+  } @else {
+    background: $dgb-cotation-unacceptable;
+    color: #ffffff;
+  }
+}

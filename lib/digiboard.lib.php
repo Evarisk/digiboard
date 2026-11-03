@@ -77,10 +77,10 @@ function digiboard_yes_no(bool $state, int $hideNo = 0): string
     }
 
     if ($state) {
-        return '<i class="fas fa-check" style="color: #25a55b;" title="' . $langs->trans('Yes') . '"></i>';
+        return '<i class="fas fa-check digiboard-state-yes" title="' . $langs->trans('Yes') . '"></i>';
     }
 
-    return '<i class="fas fa-times" style="color: #a72d2d;" title="' . $langs->trans('No') . '"></i>';
+    return '<i class="fas fa-times digiboard-state-no" title="' . $langs->trans('No') . '"></i>';
 }
 
 /**
@@ -117,7 +117,7 @@ function digiboard_show_remote_ticket_summary(array $instances, string $period, 
     $delays = ['meanBacklogAge', 'meanResolution'];
 
     print '<div class="div-table-responsive-no-min">';
-    print '<table class="noborder centpercent">';
+    print '<table class="noborder centpercent digiboard-remote-summary">';
     print '<tr class="liste_titre">';
     print '<td>' . $langs->trans('RemoteInstance') . '</td>';
     foreach ($columns as $key => $label) {
@@ -130,7 +130,7 @@ function digiboard_show_remote_ticket_summary(array $instances, string $period, 
         $result = $remoteInstance->getTicketSummary($instance, $period);
 
         print '<tr class="oddeven' . ($instance['id'] == $selectedId ? ' highlight' : '') . '">';
-        print '<td><a href="' . dol_buildpath('/digiboard/view/remote_ticket_dashboard.php', 1) . '?instanceid=' . urlencode($instance['id']) . '">' . dol_escape_htmltag($instance['label']) . '</a>';
+        print '<td><a class="digiboard-remote-instance" href="' . dol_buildpath('/digiboard/view/remote_ticket_dashboard.php', 1) . '?instanceid=' . urlencode($instance['id']) . '">' . dol_escape_htmltag($instance['label']) . '</a>';
         print '<br><span class="opacitymedium small">' . dol_escape_htmltag($instance['url']) . '</span></td>';
 
         if (!$result['success']) {
