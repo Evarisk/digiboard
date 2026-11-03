@@ -70,7 +70,7 @@ $constArray['digiboard'] = [
         'code'        => 'DIGIBOARD_DIGIRISIK_STATS_LOAD_ACCIDENT',
     ]
 ];
-require __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
+require dol_buildpath('/saturne/core/tpl/admin/object/object_const_view.tpl.php');
 
 // Page end
 print dol_get_fiche_end();

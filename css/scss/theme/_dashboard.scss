@@ -1,0 +1,112 @@
+@use 'tokens' as *;
+
+/* DigiBoard modern theme: DigiRisk statistics of the home page and remote ticket pages. The dashboard widgets,
+   graphs and lists themselves are restyled by the shared theme of Saturne. */
+
+#{$dgb-scope} {
+  /* ---- DigiRisk statistics of the shared entities (home page) ---- */
+
+  /* Tighter columns whose titles may wrap: the twelve columns no longer push the page wider than the screen.
+     Browsers without :has() keep the wider layout */
+  table.noborder:has(td.digiboard-stats-cotation) > tbody > tr > td {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  table.noborder:has(td.digiboard-stats-cotation) > tbody > tr.liste_titre > td {
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  /* The site names are aligned left, their title too */
+  table.noborder:has(td.digiboard-stats-cotation) > tbody > tr.liste_titre > td:first-child {
+    text-align: left;
+  }
+
+  /* Number of risks of a cotation level, as a chip in the colour of the level (Digirisk scale) */
+  .digiboard-cotation-chip {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 64px;
+    padding: 5px 10px;
+    border-radius: $dgb-radius-sm;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+    @include dgb-cotation-colours(1);
+
+    &[data-scale="2"] {
+      @include dgb-cotation-colours(2);
+    }
+
+    &[data-scale="3"] {
+      @include dgb-cotation-colours(3);
+    }
+
+    &[data-scale="4"] {
+      @include dgb-cotation-colours(4);
+    }
+  }
+
+  .digiboard-cotation-count {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .digiboard-cotation-percent {
+    font-size: 10.5px;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+
+  /* Total row, set apart like the totals of the Dolibarr lists. Selector as specific as the body rows of the
+     shared theme, which the home page loads a second time after this stylesheet */
+  table.noborder:not(.nobordernopadding) > tbody > tr:not(.liste_titre):not(.liste_titre_filter) > td.digiboard-stats-total {
+    border-top: 1px solid $dgb-border;
+    background: $dgb-surface-soft;
+    font-weight: 700;
+  }
+
+  /* ---- Remote ticket dashboard: counters of every instance, side by side ---- */
+
+  table.digiboard-remote-summary {
+    > tbody > tr > td.right {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* The instance whose dashboard is displayed below */
+    > tbody > tr.highlight > td:first-child {
+      box-shadow: inset 3px 0 0 $dgb-primary;
+    }
+
+    .digiboard-remote-instance {
+      font-weight: 700;
+    }
+  }
+
+  /* ---- Remote ticket list: filters, as a card ---- */
+
+  form.digiboard-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 12px;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    @include dgb-card;
+
+    .marginrightonly {
+      margin-right: 0 !important;
+    }
+
+    label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: $dgb-text-soft;
+    }
+  }
+}
