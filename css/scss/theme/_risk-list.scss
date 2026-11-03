@@ -1,0 +1,672 @@
+@use 'tokens' as *;
+
+/* DigiBoard modern theme: simplified risk list (view/risk_list.php), formerly a <style> block of the page.
+   Same look as the risk list of Digirisk: white cards, uppercase micro labels, cotation chips in their colours. */
+
+#{$dgb-scope} {
+  .notion-wrapper {
+    margin-top: 4px;
+    color: $dgb-text;
+  }
+
+  /* ---- Risk type tabs, as the segmented bar of the card tabs ---- */
+
+  .notion-header-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin: 4px 0 16px;
+    padding: 6px;
+    @include dgb-card;
+  }
+
+  .notion-tab-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 13px;
+    border-radius: $dgb-radius;
+    font-size: 13px;
+    font-weight: 600;
+    color: $dgb-text-soft;
+    text-decoration: none;
+    transition: background-color $dgb-transition, color $dgb-transition;
+
+    .fas {
+      opacity: 0.85;
+    }
+
+    &:hover {
+      background: $dgb-surface-soft;
+      color: $dgb-text;
+      text-decoration: none;
+    }
+
+    &.active {
+      background: $dgb-primary-soft;
+      color: $dgb-primary-strong;
+    }
+  }
+
+  /* ---- Cotation counters: white cards with a count tile in the colour of the level ---- */
+
+  .notion-metrics-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .notion-metric-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 14px 5px 5px;
+    border: 1px solid $dgb-border;
+    border-radius: 12px;
+    background: $dgb-surface;
+    box-shadow: $dgb-shadow-sm;
+    font-size: 13px;
+    font-weight: 600;
+    color: $dgb-text;
+    text-decoration: none;
+    transition: border-color $dgb-transition, box-shadow $dgb-transition;
+
+    &:hover {
+      border-color: $dgb-border-strong;
+      box-shadow: $dgb-shadow;
+      color: $dgb-text;
+      text-decoration: none;
+    }
+
+    &.active {
+      border-color: $dgb-primary;
+      box-shadow: $dgb-ring;
+    }
+  }
+
+  .notion-metric-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 36px;
+    height: 30px;
+    padding: 0 8px;
+    border-radius: $dgb-radius-sm;
+    background: $dgb-primary;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .notion-metric-pill.metric-low .notion-metric-count {
+    @include dgb-cotation-colours(1);
+  }
+
+  .notion-metric-pill.metric-plan .notion-metric-count {
+    @include dgb-cotation-colours(2);
+  }
+
+  .notion-metric-pill.metric-treat .notion-metric-count {
+    @include dgb-cotation-colours(3);
+  }
+
+  .notion-metric-pill.metric-unacceptable .notion-metric-count {
+    @include dgb-cotation-colours(4);
+  }
+
+  /* Risks never assessed: a dashed card, the counter in grey */
+  .notion-metric-pill.metric-none {
+    border-style: dashed;
+    border-color: $dgb-border-strong;
+    background: $dgb-surface-soft;
+    box-shadow: none;
+    color: $dgb-muted;
+
+    &.active {
+      border-style: solid;
+      border-color: $dgb-primary;
+      box-shadow: $dgb-ring;
+    }
+
+    .notion-metric-count {
+      background: $dgb-border;
+      color: $dgb-text-soft;
+    }
+  }
+
+  /* ---- Filters ---- */
+
+  .notion-filter-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    @include dgb-card;
+  }
+
+  .notion-filter-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    > .opacitymedium {
+      color: $dgb-faint;
+    }
+  }
+
+  .notion-search-group {
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    min-width: 220px;
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .button {
+      margin: 0 !important;
+      white-space: nowrap;
+    }
+  }
+
+  .notion-btn-reset {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 34px;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    height: 34px;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid $dgb-border-strong;
+    border-radius: $dgb-radius-sm;
+    background: $dgb-surface;
+    color: $dgb-muted;
+    font-size: 13px;
+    line-height: 1;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background-color $dgb-transition, border-color $dgb-transition, color $dgb-transition;
+
+    &:hover {
+      border-color: $dgb-danger-line;
+      background: $dgb-danger-soft;
+      color: $dgb-danger-text;
+    }
+  }
+
+  /* Danger category pictures of the category picker (select2 options) */
+  .notion-category-option-picto {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
+    vertical-align: middle;
+    object-fit: contain;
+  }
+
+  /* ---- Table ---- */
+
+  .notion-table-card {
+    overflow: hidden;
+    @include dgb-card;
+  }
+
+  .notion-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    > thead > tr > th {
+      padding: 11px 10px;
+      border-bottom: 1px solid $dgb-border;
+      background: $dgb-surface-soft;
+      text-align: left;
+      opacity: 1;
+      @include dgb-label;
+
+      &.center {
+        text-align: center;
+      }
+
+      /* Sortable titles look like the others */
+      a {
+        color: inherit;
+        font-weight: inherit;
+      }
+
+      .fas {
+        margin-right: 2px;
+        color: $dgb-faint;
+      }
+    }
+
+    /* Sorted column */
+    > thead > tr > th.liste_titre_sel,
+    > thead > tr > th.liste_titre_sel a {
+      color: $dgb-primary-strong;
+    }
+
+    > tbody > tr > td {
+      padding: 12px 10px;
+      border-bottom: 1px solid $dgb-border-soft;
+      color: $dgb-text;
+      vertical-align: top;
+    }
+
+    > tbody > tr:last-child > td {
+      border-bottom: none;
+    }
+
+    > tbody > tr:hover > td {
+      background: $dgb-surface-soft;
+    }
+
+    > tbody > tr > td.notion-col-action {
+      vertical-align: middle;
+    }
+  }
+
+  /* Column widths (were inline styles). The tags and the tasks wrap, which leaves the description some room
+     and keeps the table within the screen */
+  .notion-col-ref {
+    width: 56px;
+  }
+
+  .notion-col-category {
+    width: 30px;
+  }
+
+  .notion-col-description {
+    min-width: 140px;
+  }
+
+  .notion-col-establishment {
+    min-width: 125px;
+  }
+
+  .notion-col-element {
+    min-width: 165px;
+  }
+
+  .notion-col-cotation {
+    min-width: 170px;
+  }
+
+  .notion-col-tasks {
+    min-width: 220px;
+  }
+
+  .notion-col-action {
+    width: 100px;
+  }
+
+  /* ---- Cells ---- */
+
+  .notion-badge-ref {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 700;
+    color: $dgb-text;
+    text-decoration: none;
+
+    &:hover {
+      color: $dgb-primary-strong;
+      text-decoration: underline;
+    }
+  }
+
+  .notion-category-picto {
+    width: 30px;
+    height: 30px;
+    border-radius: $dgb-radius-sm;
+    vertical-align: middle;
+    object-fit: contain;
+  }
+
+  .notion-category-fallback {
+    color: $dgb-warning;
+    font-size: 20px;
+    vertical-align: middle;
+  }
+
+  .notion-description {
+    margin-bottom: 2px;
+    font-weight: 600;
+    color: $dgb-text;
+  }
+
+  .notion-description-category {
+    font-size: 11.5px;
+    color: $dgb-faint;
+  }
+
+  /* Establishment, groupment and work unit, as tinted pills. A long name wraps rather than widening the
+     whole table past the screen */
+  .notion-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 3px 10px 3px 8px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.4;
+
+    .fas {
+      opacity: 0.8;
+    }
+  }
+
+  .notion-tag-establishment {
+    border-color: $dgb-border;
+    background: $dgb-surface-soft;
+    color: $dgb-text-soft;
+  }
+
+  /* Followed by its work unit, on the next line */
+  .notion-tag-groupment {
+    margin-bottom: 4px;
+    border-color: $dgb-warning-line;
+    background: $dgb-warning-soft;
+    color: $dgb-warning-text;
+  }
+
+  .notion-tag-workunit {
+    border-color: $dgb-success-line;
+    background: $dgb-success-soft;
+    color: $dgb-success-text;
+  }
+
+  /* Cotation of the risk, as the cotation chips of Digirisk */
+  .notion-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: $dgb-radius-sm;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+
+    &.status-low {
+      @include dgb-cotation-colours(1);
+    }
+
+    &.status-plan {
+      @include dgb-cotation-colours(2);
+    }
+
+    &.status-treat {
+      @include dgb-cotation-colours(3);
+    }
+
+    &.status-unacceptable {
+      @include dgb-cotation-colours(4);
+    }
+
+    &.status-none {
+      border: 1px dashed $dgb-border-strong;
+      background: $dgb-surface-soft;
+      color: $dgb-muted;
+      box-shadow: none;
+    }
+  }
+
+  /* Criteria of an advanced cotation, as small gauges */
+  .notion-criteria {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: $dgb-text-soft;
+  }
+
+  .notion-criterion {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .notion-criterion-label {
+    min-width: 74px;
+  }
+
+  .notion-criterion-gauge {
+    display: inline-flex;
+    gap: 2px;
+
+    span {
+      width: 10px;
+      height: 6px;
+      border-radius: 2px;
+      background: $dgb-border;
+
+      &.on {
+        background: $dgb-muted;
+      }
+    }
+  }
+
+  .notion-criterion-value {
+    font-weight: 700;
+    color: $dgb-text;
+  }
+
+  /* Evaluator, date and comment of the last assessment */
+  .notion-assessment-meta {
+    margin-top: 6px;
+    font-size: 11.5px;
+    color: $dgb-muted;
+  }
+
+  .notion-assessment-comment {
+    margin-top: 3px;
+    font-size: 11.5px;
+    font-style: italic;
+    color: $dgb-text-soft;
+  }
+
+  /* ---- Protection means ---- */
+
+  .notion-protection-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 128px;
+  }
+
+  .notion-protection-picto {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    object-fit: contain;
+  }
+
+  .notion-empty-text {
+    font-size: 12px;
+    font-style: italic;
+    color: $dgb-faint;
+  }
+
+  /* ---- Action plan ---- */
+
+  .notion-task-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .notion-task-summary-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $dgb-text-soft;
+    white-space: nowrap;
+  }
+
+  .notion-task-summary-percent {
+    font-size: 11px;
+    font-weight: 600;
+    color: $dgb-muted;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Shrinks a little rather than pushing the count of done tasks onto two lines */
+  .notion-progress-mini {
+    display: inline-block;
+    flex: 0 1 60px;
+    width: 60px;
+    min-width: 30px;
+    height: 6px;
+    border-radius: $dgb-radius-pill;
+    background: $dgb-border;
+    overflow: hidden;
+    vertical-align: middle;
+  }
+
+  .notion-progress-bar {
+    height: 100%;
+    border-radius: inherit;
+    background: $dgb-success;
+  }
+
+  .notion-task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .notion-task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid $dgb-border;
+    border-radius: $dgb-radius;
+    background: $dgb-surface-soft;
+    font-size: 12px;
+  }
+
+  .notion-task-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    margin-top: 1px;
+    font-size: 14px;
+
+    &.completed {
+      color: $dgb-success;
+    }
+
+    &.pending {
+      color: $dgb-faint;
+    }
+  }
+
+  .notion-task-pct {
+    padding: 1px 6px;
+    border: 1px solid $dgb-primary-line;
+    border-radius: $dgb-radius-pill;
+    background: $dgb-primary-soft;
+    color: $dgb-primary-strong;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 12px;
+    white-space: nowrap;
+  }
+
+  .notion-task-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .notion-task-ref {
+    margin-right: 4px;
+    font-weight: 700;
+    color: $dgb-primary-strong;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .notion-task-title {
+    font-weight: 500;
+    color: $dgb-text;
+  }
+
+  .notion-task-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    margin-top: 3px;
+    font-size: 11px;
+    color: $dgb-muted;
+
+    .fas,
+    .far {
+      color: $dgb-faint;
+    }
+  }
+
+  .notion-task-overdue {
+    font-weight: 600;
+    color: $dgb-danger-text;
+
+    .far {
+      color: inherit;
+    }
+  }
+
+  /* ---- Link to the risk card, as a light secondary button ---- */
+
+  .notion-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid $dgb-border;
+    border-radius: $dgb-radius;
+    background: $dgb-surface;
+    box-shadow: $dgb-shadow-sm;
+    color: $dgb-text-soft;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: border-color $dgb-transition, color $dgb-transition;
+
+    &:hover {
+      border-color: $dgb-primary;
+      color: $dgb-primary-strong;
+      text-decoration: none;
+    }
+
+    .fas {
+      font-size: 11px;
+    }
+  }
+}
