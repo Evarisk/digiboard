@@ -149,7 +149,7 @@ if ($filterEntity > 0 && !isset($entities[$filterEntity])) {
 
 // Load Danger Categories from Digirisk JSON file
 $dangerCategories = [];
-$dangerCategoriesFile = DOL_DOCUMENT_ROOT . '/custom/digiriskdolibarr/js/json/dangerCategories.json';
+$dangerCategoriesFile = dol_buildpath('/digiriskdolibarr/js/json/dangerCategories.json', 0);
 if (file_exists($dangerCategoriesFile)) {
     $jsonRaw = (string) file_get_contents($dangerCategoriesFile);
     $json = json_decode($jsonRaw, true);
@@ -163,7 +163,7 @@ if (file_exists($dangerCategoriesFile)) {
 // Protection means are the risk signs of the risk's element filed as personal (OBLIGATION) or collective
 // (epc) protective equipment, as the product risks of Digirisk pick their protections
 $protectionCategories = [];
-$signalisationFile    = DOL_DOCUMENT_ROOT . '/custom/digiriskdolibarr/js/json/signalisationCategories.json';
+$signalisationFile    = dol_buildpath('/digiriskdolibarr/js/json/signalisationCategories.json', 0);
 if (file_exists($signalisationFile)) {
     foreach ((array) json_decode((string) file_get_contents($signalisationFile), true) as $sign) {
         if (preg_match('/^(OBLIGATION|epc)\//', $sign['name_thumbnail'] ?? '')) {
@@ -177,7 +177,7 @@ if (file_exists($signalisationFile)) {
 // environment into the exposition, occurrence, formation and protection columns
 $cotationCriteria  = [];
 $criteriaColumns   = ['gravite', 'exposition', 'occurrence', 'formation', 'protection'];
-$cotationGridFile  = DOL_DOCUMENT_ROOT . '/custom/digiriskdolibarr/js/json/default.json';
+$cotationGridFile  = dol_buildpath('/digiriskdolibarr/js/json/default.json', 0);
 if (file_exists($cotationGridFile)) {
     $cotationGrid = json_decode((string) file_get_contents($cotationGridFile), true);
     foreach ($cotationGrid[0]['option'][$riskType . '_variable'] ?? [] as $index => $variable) {
@@ -233,7 +233,7 @@ foreach ($sortedCategories as $cat) {
     $pos = (int) $cat['position'];
     $pictoImg = '';
     if (!empty($cat['thumbnail_name'])) {
-        $pictoPath = '/custom/digiriskdolibarr/img/categorieDangers/' . $cat['thumbnail_name'] . '.png';
+        $pictoPath = '/digiriskdolibarr/img/categorieDangers/' . $cat['thumbnail_name'] . '.png';
         $pictoImg = '<img src="' . dol_buildpath($pictoPath, 1) . '" class="notion-category-option-picto">';
     }
     $categoryOptions[$pos] = [
@@ -898,7 +898,7 @@ if (empty($risks)) {
         $catName = $catData['name'] ?? '';
         $pictoImg = '';
         if (!empty($catData['thumbnail_name'])) {
-            $pictoPath = '/custom/digiriskdolibarr/img/categorieDangers/' . $catData['thumbnail_name'] . '.png';
+            $pictoPath = '/digiriskdolibarr/img/categorieDangers/' . $catData['thumbnail_name'] . '.png';
             $pictoImg = '<img src="' . dol_buildpath($pictoPath, 1) . '" alt="' . dol_escape_htmltag($catName) . '" title="' . dol_escape_htmltag($catName) . '" class="notion-category-picto">';
         } else {
             $pictoImg = '<i class="fas fa-exclamation-triangle notion-category-fallback" title="' . dol_escape_htmltag($catName) . '"></i>';
@@ -1009,7 +1009,7 @@ if (empty($risks)) {
             print '<div class="notion-protection-list">';
             foreach ($elementProtections as $protection) {
                 $protectionSign = $protectionCategories[(int) $protection->category];
-                print '<img src="' . dol_buildpath('/custom/digiriskdolibarr/img/' . $protectionSign['name_thumbnail'], 1) . '" class="notion-protection-picto" alt="' . dol_escape_htmltag($protectionSign['name']) . '" title="' . dol_escape_htmltag($getProtectionLabel($protection)) . '" loading="lazy">';
+                print '<img src="' . dol_buildpath('/digiriskdolibarr/img/' . $protectionSign['name_thumbnail'], 1) . '" class="notion-protection-picto" alt="' . dol_escape_htmltag($protectionSign['name']) . '" title="' . dol_escape_htmltag($getProtectionLabel($protection)) . '" loading="lazy">';
             }
             print '</div>';
         }
