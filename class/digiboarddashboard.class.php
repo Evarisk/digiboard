@@ -142,7 +142,8 @@ class DigiboardDashboard
         $array['type']   = 'list';
         $array['labels'] = ['Site', 'SIRET', 'RiskAssessmentDocument', 'NextGenerateDate', 'DelayGenerateDate', 'NbEmployees', 'NbEmployeesInvolved', 'GreyRisk', 'OrangeRisk', 'RedRisk', 'BlackRisk', 'TotalRisk'];
         if (getDolGlobalInt('DIGIBOARD_DIGIRISIK_STATS_LOAD_ACCIDENT')) {
-            $array['labels'][] = ['NbPresquAccidents', 'NbAccidents', 'NbAccidentsByEmployees', 'NbAccidentInvestigations', 'WorkStopDays', 'FrequencyIndex', 'FrequencyRate', 'GravityRate'];
+            // One label per accident column: pushing the list as one item left a header short of 8 cells and a fatal on PHP 8
+            array_push($array['labels'], ...['NbPresquAccidents', 'NbAccidents', 'NbAccidentsByEmployees', 'NbAccidentInvestigations', 'WorkStopDays', 'FrequencyIndex', 'FrequencyRate', 'GravityRate']);
 
             require_once __DIR__ . '/../../digiriskdolibarr/class/accident.class.php';
 
