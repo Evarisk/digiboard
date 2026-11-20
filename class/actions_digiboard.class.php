@@ -77,8 +77,8 @@ class ActionsDigiboard
 
         if (strpos($parameters['context'], 'digiboardindex') !== false) {
             $resourcesRequired = [
-                'css'        => '/custom/digiriskdolibarr/css/digiriskdolibarr.min.css',
-                'cssSaturne' => '/custom/saturne/css/saturne.min.css',
+                'css'        => '/digiriskdolibarr/css/digiriskdolibarr.min.css',
+                'cssSaturne' => '/saturne/css/saturne.min.css',
             ];
 
             $out  = '<!-- Includes CSS added by module digiriskdolibarr -->';
@@ -124,7 +124,7 @@ class ActionsDigiboard
 
             // Only documents of another entity need their path rewritten: those of the current one are already right
             $referer = $_SERVER['HTTP_REFERER'] ?? '';
-            if ($parameters['modulepart'] == 'digiriskdolibarr' && $entity > 0 && $entity != (int) $conf->entity && strpos($referer, dol_buildpath('custom/digiboard/index.php', 1)) !== false) {
+            if ($parameters['modulepart'] == 'digiriskdolibarr' && $entity > 0 && $entity != (int) $conf->entity && strpos($referer, dol_buildpath('/digiboard/index.php', 1)) !== false) {
                 // The entity and the referer are both forgeable: serve another entity's documents only to a user
                 // allowed to log into it, with the same check as the core login
                 $fuser = (!empty($parameters['fuser']) && is_object($parameters['fuser'])) ? $parameters['fuser'] : $user;
