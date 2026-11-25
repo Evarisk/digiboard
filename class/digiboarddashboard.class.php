@@ -145,7 +145,7 @@ class DigiboardDashboard
             // One label per accident column: pushing the list as one item left a header short of 8 cells and a fatal on PHP 8
             array_push($array['labels'], ...['NbPresquAccidents', 'NbAccidents', 'NbAccidentsByEmployees', 'NbAccidentInvestigations', 'WorkStopDays', 'FrequencyIndex', 'FrequencyRate', 'GravityRate']);
 
-            require_once __DIR__ . '/../../digiriskdolibarr/class/accident.class.php';
+            dol_include_once('/digiriskdolibarr/class/accident.class.php');
 
             $accident = new Accident($this->db);
 
@@ -158,9 +158,9 @@ class DigiboardDashboard
             }
         }
 
-        require_once __DIR__ . '/../../digiriskdolibarr/class/digiriskdolibarrdocuments/riskassessmentdocument.class.php';
-        require_once __DIR__ . '/../../digiriskdolibarr/class/evaluator.class.php';
-        require_once __DIR__ . '/../../digiriskdolibarr/class/riskanalysis/risk.class.php';
+        dol_include_once('/digiriskdolibarr/class/digiriskdolibarrdocuments/riskassessmentdocument.class.php');
+        dol_include_once('/digiriskdolibarr/class/evaluator.class.php');
+        dol_include_once('/digiriskdolibarr/class/riskanalysis/risk.class.php');
 
         $riskAssessmentDocument = new RiskAssessmentDocument($this->db);
         $evaluator              = new Evaluator($this->db);

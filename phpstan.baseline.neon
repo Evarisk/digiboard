@@ -31,7 +31,55 @@ parameters:
 			path: class/digiboarddashboard.class.php
 
 		-
+			message: '#^Access to property \$table_element on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method fetchAll\(\) on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getFrequencyIndex\(\) on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getFrequencyRate\(\) on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
 			message: '#^Call to method getGenerationDateInfos\(\) on an unknown class RiskAssessmentDocument\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getGravityRate\(\) on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getNbAccidentInvestigations\(\) on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getNbAccidents\(\) on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getNbAccidentsByEmployees\(\) on an unknown class Accident\.$#'
 			identifier: class.notFound
 			count: 1
 			path: class/digiboarddashboard.class.php
@@ -44,6 +92,18 @@ parameters:
 
 		-
 			message: '#^Call to method getNbEmployeesInvolved\(\) on an unknown class Evaluator\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getNbPresquAccidents\(\) on an unknown class Accident\.$#'
+			identifier: class.notFound
+			count: 1
+			path: class/digiboarddashboard.class.php
+
+		-
+			message: '#^Call to method getNbWorkstopDays\(\) on an unknown class Accident\.$#'
 			identifier: class.notFound
 			count: 1
 			path: class/digiboarddashboard.class.php
