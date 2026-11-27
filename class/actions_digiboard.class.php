@@ -76,14 +76,16 @@ class ActionsDigiboard
         $langs->load('digiboard@digiboard');
 
         if (strpos($parameters['context'], 'digiboardindex') !== false) {
+            // saturne_asset_full_url() for the assets printed below: without a version, the browser keeps serving the previous release
+            dol_include_once('/saturne/lib/asset.lib.php');
+
+            // saturne.min.css is already loaded by saturne_header(), through the Saturne index template
             $resourcesRequired = [
-                'css'        => '/digiriskdolibarr/css/digiriskdolibarr.min.css',
-                'cssSaturne' => '/saturne/css/saturne.min.css',
+                'css' => '/digiriskdolibarr/css/digiriskdolibarr.min.css',
             ];
 
             $out  = '<!-- Includes CSS added by module digiriskdolibarr -->';
-            $out .= '<link rel="stylesheet" type="text/css" href="' . dol_buildpath($resourcesRequired['css'], 1) . '">';
-            $out .= '<link rel="stylesheet" type="text/css" href="' . dol_buildpath($resourcesRequired['cssSaturne'], 1) . '">';
+            $out .= '<link rel="stylesheet" type="text/css" href="' . saturne_asset_full_url($resourcesRequired['css']) . '">';
 
             $this->resprints = $out;
         }
